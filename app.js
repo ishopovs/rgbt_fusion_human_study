@@ -43,14 +43,14 @@ async function signInAnon() {
     throw e;
   }
 }
-startBtn.addEventListener("click", async () => {
-  startBtn.disabled = true;
-  try {
-    await signInAnon();
-  } finally {
-    startBtn.disabled = false;
-  }
-});
+// startBtn.addEventListener("click", async () => {
+//   startBtn.disabled = true;
+//   try {
+//     await signInAnon();
+//   } finally {
+//     startBtn.disabled = false;
+//   }
+// });
 
 // Block 3: Show one image, start timer when it is visible, log click RT + normalised coords
 const img = document.getElementById("stimulus");
@@ -98,7 +98,7 @@ startBtn.addEventListener("click", async () => {
   }
 });
 
-img.addEventListener("click", (evt) => {
+img.addEventListener("click", async (evt) => {
   if (tStart === null) return;
 
   const rtMs = Math.round(performance.now() - tStart);
