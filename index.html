@@ -1,1 +1,25 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pedestrian localisation study</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 24px; }
+    #stimulusWrap { width: min(1000px, 95vw); }
+    #stimulus { width: 100%; height: auto; display: block; cursor: crosshair; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h2>Pedestrian localisation task</h2>
+  <p id="status">Press start. Then click the pedestrian location as fast as possible.</p>
+  <button id="startBtn">Start</button>
 
+  <div id="stimulusWrap" class="hidden">
+    <img id="stimulus" alt="stimulus" />
+  </div>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
