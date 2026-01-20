@@ -1,13 +1,10 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 
-import { signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-
-import { collection, addDoc, serverTimestamp } 
-  from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
-
-// Your web app's Firebase configuration
+// -------------------------
+// Firebase config
+// -------------------------
 const firebaseConfig = {
   apiKey: "AIzaSyCJMsriYRyR6Wl6ky3T2AbUJVK2Z3x54ss",
   authDomain: "rgbt-fusion-human-study.firebaseapp.com",
@@ -17,80 +14,185 @@ const firebaseConfig = {
   appId: "1:101524489707:web:e4b4c43200733cee2485ae"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 console.log("Firebase initialized:", app.options.projectId);
 
-//Enable anonymous Sign-In
-
+// -------------------------
+// DOM
+// -------------------------
 const statusEl = document.getElementById("status");
+const instructionsEl = document.getElementById("instructions");
 const startBtn = document.getElementById("startBtn");
 const nextBtn = document.getElementById("nextBtn");
-let trialPos = -1;      // index into trials in the order shown to this participant
-let pending = null;     // stores click result until Next is pressed
-let userUid = null;
 
-async function signInAnon() {
-  statusEl.textContent = "Signing in...";
-  console.log("Attempting anonymous sign-in...");
-
-  try {
-    const cred = await signInAnonymously(auth);
-    userUid = cred.user.uid;
-    console.log("Signed in. UID:", cred.user.uid);
-    statusEl.textContent = "Signed in successfully.";
-    return cred.user.uid;
-  } catch (e) {
-    console.error("Anonymous sign-in failed:", e);
-    statusEl.textContent = `Sign-in failed: ${e.code || e.message}`;
-    throw e;
-  }
-}
-// startBtn.addEventListener("click", async () => {
-//   startBtn.disabled = true;
-//   try {
-//     await signInAnon();
-//   } finally {
-//     startBtn.disabled = false;
-//   }
-// });
-
-// Block 3: Show one image, start timer when it is visible, log click RT + normalised coords
 const img = document.getElementById("stimulus");
 const wrap = document.getElementById("stimulusWrap");
 
-const ONE_IMAGE_SRC = "./assets/Picture1.jpg";
-const trials = [
-  { sceneId: "s01", condition: "fused",   imageId: "s01_fused",   src: "./assets/Picture1.jpg" },
-  { sceneId: "s02", condition: "fused", imageId: "s02_fused", src: "./assets/Picture9.jpg" },
-  // add more...
-];
+// -------------------------
+// Study IDs
+// -------------------------
+const studyId = "thesis_ped_localization_v1";
+const participantId = crypto.randomUUID();
+let userUid = null;
 
-let tStart = null;
+// -------------------------
+// Trials + state
+// -------------------------
+let trials = [];
+let trialPos = -1;
+let tStart = null;           // trial timer start (after image shown)
+let clicks = [];             // multiple pedestrians: store multiple clicks
+let trialActive = false;
 
-// function startOneImageTrial() {
-//   statusEl.textContent = "Loading image...";
-//   wrap.classList.remove("hidden");
+// Preload cache: src -> HTMLImageElement
+const preloadCache = new Map();
 
-//   img.onload = () => {
-//     statusEl.textContent = "Click the pedestrian location.";
-//     tStart = performance.now();
-//     console.log("Image shown; timer started.");
-//   };
+// -------------------------
+// Helpers: device + viewport logging
+// -------------------------
+function getDeviceInfo() {
+  const ua = navigator.userAgent || "";
+  const isTouch = ("ontouchstart" in window) || (navigator.maxTouchPoints > 0);
+  const isMobileUA = /Mobi|Android|iPhone|iPad|iPod/i.test(ua);
+  const deviceType = (isMobileUA || isTouch) ? "mobile_or_touch" : "desktop";
 
-//   img.onerror = () => {
-//     statusEl.textContent = "Image failed to load. Check the path.";
-//     console.error("Image load failed:", ONE_IMAGE_SRC);
-//   };
+  return {
+    deviceType,
+    userAgent: ua,
+    platform: navigator.platform || "",
+    devicePixelRatio: window.devicePixelRatio || 1
+  };
+}
 
-//   img.src = ONE_IMAGE_SRC; // triggers loading + display
-// }
+function getViewportInfo() {
+  return {
+    viewportW: window.innerWidth,
+    viewportH: window.innerHeight,
+    screenW: window.screen?.width ?? null,
+    screenH: window.screen?.height ?? null
+  };
+}
 
-function showNextTrial() {
+// -------------------------
+// Helpers: load trials manifest
+// -------------------------
+async function loadTrials() {
+  const res = await fetch("./assets/trials.json", { cache: "no-store" });
+  if (!res.ok) throw new Error(`Failed to load trials.json: ${res.status}`);
+  const data = await res.json();
+  if (!Array.isArray(data) || data.length === 0) throw new Error("trials.json is empty/invalid");
+  return data;
+}
+
+// -------------------------
+// Helpers: shuffle (optional)
+// -------------------------
+function shuffleInPlace(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+// -------------------------
+// Preload logic
+// -------------------------
+function preloadImage(src) {
+  if (preloadCache.has(src)) return preloadCache.get(src);
+
+  const im = new Image();
+  im.src = src;
+  preloadCache.set(src, im);
+  return im;
+}
+
+async function ensurePreloaded(src) {
+  const im = preloadImage(src);
+  // wait until loaded (or error)
+  if (im.complete && im.naturalWidth > 0) return im;
+  await new Promise((resolve, reject) => {
+    im.onload = () => resolve();
+    im.onerror = () => reject(new Error(`Preload failed: ${src}`));
+  });
+  return im;
+}
+
+// -------------------------
+// Mapping click to normalised coords accounting for letterboxing
+// -------------------------
+function getDisplayedImageRect() {
+  // wrapper size
+  const wrapRect = wrap.getBoundingClientRect();
+  const W = wrapRect.width;
+  const H = wrapRect.height;
+
+  // intrinsic image size
+  const nW = img.naturalWidth;
+  const nH = img.naturalHeight;
+  if (!nW || !nH) return null;
+
+  // "contain" fit into wrapper
+  const scale = Math.min(W / nW, H / nH);
+  const dispW = nW * scale;
+  const dispH = nH * scale;
+
+  // centered inside wrapper
+  const left = wrapRect.left + (W - dispW) / 2;
+  const top  = wrapRect.top  + (H - dispH) / 2;
+
+  return { left, top, dispW, dispH };
+}
+
+function clickToNormXY(evt) {
+  const r = getDisplayedImageRect();
+  if (!r) return null;
+
+  const x = evt.clientX - r.left;
+  const y = evt.clientY - r.top;
+
+  // ignore clicks outside the displayed image area (letterbox region)
+  if (x < 0 || y < 0 || x > r.dispW || y > r.dispH) return null;
+
+  return {
+    xNorm: x / r.dispW,
+    yNorm: y / r.dispH
+  };
+}
+
+// -------------------------
+// Auth
+// -------------------------
+async function signInAnon() {
+  statusEl.textContent = "Signing in...";
+  const cred = await signInAnonymously(auth);
+  userUid = cred.user.uid;
+  console.log("Signed in. UID:", userUid);
+}
+
+// -------------------------
+// Instructions (minimal fields)
+// -------------------------
+function showInstructions() {
+  instructionsEl.classList.remove("hidden");
+  instructionsEl.innerHTML = `
+    <b>Instructions</b><br/>
+    - You will see a sequence of nighttime images.<br/>
+    - Click on <b>each pedestrian</b> you can see (multiple clicks allowed).<br/>
+    - When done with the image, press <b>Space</b> (or click Next) to continue.<br/>
+    - Try to respond as quickly and accurately as possible.<br/>
+  `;
+}
+
+// -------------------------
+// Trial presentation
+// -------------------------
+async function showNextTrial() {
   trialPos += 1;
-  pending = null;
+  clicks = [];
+  tStart = null;
+  trialActive = false;
   nextBtn.disabled = true;
 
   if (trialPos >= trials.length) {
@@ -101,140 +203,130 @@ function showNextTrial() {
   }
 
   const tr = trials[trialPos];
-
   statusEl.textContent = `Loading trial ${trialPos + 1}/${trials.length}...`;
   wrap.classList.remove("hidden");
   nextBtn.classList.remove("hidden");
 
-  img.onload = () => {
-    statusEl.textContent = `Trial ${trialPos + 1}/${trials.length}: click the pedestrian, then press Next.`;
-    tStart = performance.now();
-    console.log("Image shown; timer started.", tr.imageId);
-  };
+  // Preload current and (optionally) next
+  await ensurePreloaded(tr.src);
+  if (trialPos + 1 < trials.length) preloadImage(trials[trialPos + 1].src);
 
-  img.onerror = () => {
-    statusEl.textContent = "Image failed to load. Check the path.";
-    console.error("Image load failed:", tr.src);
-    tStart = null;
-  };
-
+  // Display
   img.src = tr.src;
+
+  // Wait until the displayed <img> has decoded
+  await img.decode().catch(() => { /* decode not supported everywhere; onload will still work */ });
+
+  // Start timing only now (image is ready to be seen)
+  tStart = performance.now();
+  trialActive = true;
+  nextBtn.disabled = false;
+
+  statusEl.textContent = `Trial ${trialPos + 1}/${trials.length}: click pedestrians (count=${clicks.length}). Press Space/Next to submit.`;
 }
 
+// -------------------------
+// Save to Firestore (one doc per trial, with multiple clicks)
+// -------------------------
+async function submitCurrentTrial() {
+  if (!trialActive) return; // nothing to submit
 
-function clickToNormXY(evt) {
-  const rect = img.getBoundingClientRect();
-  const x = (evt.clientX - rect.left) / rect.width;
-  const y = (evt.clientY - rect.top) / rect.height;
-  return {
-    xNorm: Math.min(1, Math.max(0, x)),
-    yNorm: Math.min(1, Math.max(0, y)),
+  const tr = trials[trialPos];
+  const device = getDeviceInfo();
+  const vp = getViewportInfo();
+
+  // allow submission even with 0 clicks (useful for "no pedestrian" images)
+  const payload = {
+    studyId,
+    participantId,
+    firebaseUid: userUid,
+
+    trialPos,
+    sceneId: tr.sceneId,
+    condition: tr.condition,
+    imageId: tr.imageId,
+
+    // multiple pedestrians per image
+    clicks,              // array of {xNorm, yNorm, rtMs}
+    nClicks: clicks.length,
+
+    // context logging
+    ...device,
+    ...vp,
+
+    ts: serverTimestamp(),
   };
+
+  await addDoc(collection(db, "responses"), payload);
 }
 
-// Start button now: sign in, then start the one-image trial
+// -------------------------
+// Events
+// -------------------------
 startBtn.addEventListener("click", async () => {
   startBtn.disabled = true;
   try {
     await signInAnon();
-    // startOneImageTrial();
-    showNextTrial();
+    trials = await loadTrials();
+
+    // optional: shuffle
+    shuffleInPlace(trials);
+
+    showInstructions();
+    statusEl.textContent = "Starting...";
+    await showNextTrial();
+  } catch (e) {
+    console.error(e);
+    statusEl.textContent = `Start failed: ${e.code || e.message}`;
   } finally {
     startBtn.disabled = false;
   }
 });
 
-// img.addEventListener("click", async (evt) => {
-//   if (tStart === null) return;
+// record click(s)
+img.addEventListener("click", (evt) => {
+  if (!trialActive || tStart === null) return;
 
-//   const rtMs = Math.round(performance.now() - tStart);
-//   const { xNorm, yNorm } = clickToNormXY(evt);
-
-//   console.log({ rtMs, xNorm, yNorm });
-//   statusEl.textContent = `Recorded: RT=${rtMs} ms, x=${xNorm.toFixed(3)}, y=${yNorm.toFixed(3)}`;
-
-//   // Stop timing after first click (prevents re-clicks changing RT)
-//   tStart = null;
-
-//   try {
-//     await saveResponse({ rtMs, xNorm, yNorm });
-//     statusEl.textContent = "Saved. Thank you.";
-//   } catch (e) {
-//     console.error("Firestore write failed:", e);
-//     statusEl.textContent = "Error saving response (check console).";
-//   }
-  
-// });
-
-img.addEventListener("click", async (evt) => {
-  if (tStart === null) return;
-  if (pending !== null) return; // lock to first click
+  const xy = clickToNormXY(evt);
+  if (!xy) return; // click in letterbox area
 
   const rtMs = Math.round(performance.now() - tStart);
-  const { xNorm, yNorm } = clickToNormXY(evt);
-  const tr = trials[trialPos];
+  clicks.push({ xNorm: xy.xNorm, yNorm: xy.yNorm, rtMs });
 
-  pending = { rtMs, xNorm, yNorm, tr };
-  tStart = null;
-
-  statusEl.textContent = `Recorded. Press Next. (RT=${rtMs} ms)`;
-  nextBtn.disabled = false;
+  statusEl.textContent = `Recorded ${clicks.length} click(s). Press Space/Next to submit.`;
 });
 
+// submit on Next
 nextBtn.addEventListener("click", async () => {
-  if (!pending) return;
-
+  if (!trialActive) return;
   nextBtn.disabled = true;
   statusEl.textContent = "Saving...";
-
-  const { rtMs, xNorm, yNorm, tr } = pending;
-
   try {
-    await addDoc(collection(db, "responses"), {
-      studyId,
-      participantId,
-      firebaseUid: userUid,
-
-      trialPos,                 // actual presentation order for this participant
-      sceneId: tr.sceneId,
-      condition: tr.condition,
-      imageId: tr.imageId,
-
-      rtMs,
-      xNorm,
-      yNorm,
-
-      ts: serverTimestamp(),
-    });
-
+    await submitCurrentTrial();
     statusEl.textContent = "Saved.";
-    showNextTrial();
+    await showNextTrial();
   } catch (e) {
-    console.error("Firestore write failed:", e);
-    statusEl.textContent = `Error saving: ${e.code || e.message}`;
+    console.error(e);
+    statusEl.textContent = `Save failed: ${e.code || e.message}`;
     nextBtn.disabled = false;
   }
 });
 
+// submit on Space
+document.addEventListener("keydown", async (e) => {
+  if (e.code !== "Space") return;
+  if (!trialActive) return;
 
-// Block 4: Write one response to Firestore
-
-const studyId = "thesis_ped_localization_v1";
-const participantId = crypto.randomUUID();  // local anonymous ID
-
-async function saveResponse({ rtMs, xNorm, yNorm }) {
-  const docRef = await addDoc(collection(db, "responses"), {
-    studyId,
-    participantId,
-    imageId: "example_image",
-    condition: "debug_single_image",
-    rtMs,
-    xNorm,
-    yNorm,
-    ts: serverTimestamp(),
-  });
-
-  console.log("Saved response with ID:", docRef.id);
-}
-// ---------------------- TESTED OK UNTIL HERE -------------------------------- //
-
+  e.preventDefault(); // prevents page scrolling
+  nextBtn.disabled = true;
+  statusEl.textContent = "Saving...";
+  try {
+    await submitCurrentTrial();
+    statusEl.textContent = "Saved.";
+    await showNextTrial();
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = `Save failed: ${err.code || err.message}`;
+    nextBtn.disabled = false;
+  }
+});
