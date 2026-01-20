@@ -46,7 +46,7 @@ startBtn.addEventListener("click", async () => {
     startBtn.disabled = false;
   }
 });
-// ---------------------- TESTED OK UNTIL HERE -------------------------------- //
+
 // Block 3: Show one image, start timer when it is visible, log click RT + normalised coords
 const img = document.getElementById("stimulus");
 const wrap = document.getElementById("stimulusWrap");
@@ -100,11 +100,44 @@ img.addEventListener("click", (evt) => {
   const { xNorm, yNorm } = clickToNormXY(evt);
 
   console.log({ rtMs, xNorm, yNorm });
-  statusEl.textContent = `Recorded: RT=${rtMs} ms, x=${xNorm.toFixed(3)}, y=${yNorm.toFixed(3)}`;
+  // statusEl.textContent = `Recorded: RT=${rtMs} ms, x=${xNorm.toFixed(3)}, y=${yNorm.toFixed(3)}`;
+  statusEl.textContent = `Saving... RT=${rtMs} ms`;
 
   // Stop timing after first click (prevents re-clicks changing RT)
   tStart = null;
+
+  try {
+    await saveResponse({ rtMs, xNorm, yNorm });
+    statusEl.textContent = "Saved. Thank you.";
+  } catch (e) {
+    console.error("Firestore write failed:", e);
+    statusEl.textContent = "Error saving response (check console).";
+  }
+  
 });
+// ---------------------- TESTED OK UNTIL HERE -------------------------------- //
+// Block 4: Write one response to Firestore
+
+import { collection, addDoc, serverTimestamp } 
+  from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+const studyId = "thesis_ped_localization_v1";
+const participantId = crypto.randomUUID();  // local anonymous ID
+
+async function saveResponse({ rtMs, xNorm, yNorm }) {
+  const docRef = await addDoc(collection(db, "responses"), {
+    studyId,
+    participantId,
+    imageId: "example_image",
+    condition: "debug_single_image",
+    rtMs,
+    xNorm,
+    yNorm,
+    ts: serverTimestamp(),
+  });
+
+  console.log("Saved response with ID:", docRef.id);
+}
 
 // ---------------------- EVERYTHING BELOW IS NOT TESTED YET -------------------------------- //
 // // Simple trial list (replace with your real assets + conditions)
