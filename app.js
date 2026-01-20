@@ -17,7 +17,38 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 console.log("Firebase initialized:", app.options.projectId);
+// ---------------------- TESTED OK UNTIL HERE -------------------------------- //
 
+import { signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+const statusEl = document.getElementById("status");
+const startBtn = document.getElementById("startBtn");
+
+async function signInAnon() {
+  statusEl.textContent = "Signing in...";
+  console.log("Attempting anonymous sign-in...");
+
+  try {
+    const cred = await signInAnonymously(auth);
+    console.log("Signed in. UID:", cred.user.uid);
+    statusEl.textContent = "Signed in successfully.";
+    return cred.user.uid;
+  } catch (e) {
+    console.error("Anonymous sign-in failed:", e);
+    statusEl.textContent = `Sign-in failed: ${e.code || e.message}`;
+    throw e;
+  }
+}
+startBtn.addEventListener("click", async () => {
+  startBtn.disabled = true;
+  try {
+    await signInAnon();
+  } finally {
+    startBtn.disabled = false;
+  }
+});
+
+
+// ---------------------- EVERYTHING BELOW IS NOT TESTED YET -------------------------------- //
 // Simple trial list (replace with your real assets + conditions)
 const trials = [
   { imageId: "img01_fused", src: "./assets/Picture1.jpg", condition: "fused" },
@@ -31,8 +62,7 @@ let userUid = null;
 let trialIndex = -1;
 let tStart = null;
 
-const startBtn = document.getElementById("startBtn");
-const statusEl = document.getElementById("status");
+
 const wrap = document.getElementById("stimulusWrap");
 const img = document.getElementById("stimulus");
 
@@ -108,22 +138,22 @@ img.addEventListener("click", async (evt) => {
 //   showNextTrial();
 // });
 
-startBtn.addEventListener("click", async () => {
-  startBtn.disabled = true;
-  statusEl.textContent = "Signing in...";
+// startBtn.addEventListener("click", async () => {
+//   startBtn.disabled = true;
+//   statusEl.textContent = "Signing in...";
 
-  try {
-    const cred = await signInAnonymously(auth);
-    userUid = cred.user.uid;
+//   try {
+//     const cred = await signInAnonymously(auth);
+//     userUid = cred.user.uid;
 
-    statusEl.textContent = "Loading...";
-    showNextTrial();
-  } catch (e) {
-    console.error(e);
-    statusEl.textContent = `Sign-in failed: ${e.code || e.message}`;
-    startBtn.disabled = false;
-  }
-});
+//     statusEl.textContent = "Loading...";
+//     showNextTrial();
+//   } catch (e) {
+//     console.error(e);
+//     statusEl.textContent = `Sign-in failed: ${e.code || e.message}`;
+//     startBtn.disabled = false;
+//   }
+// });
 
 
 img.addEventListener("click", (evt) => {
