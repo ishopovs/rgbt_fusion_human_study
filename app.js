@@ -16,8 +16,8 @@ const db = getFirestore(app);
 
 // Simple trial list (replace with your real assets + conditions)
 const trials = [
-  { imageId: "img01_rgb", src: "./assets/Picture1.jpg", condition: "fused" },
-  { imageId: "img01_fused", src: "./assets/Picture9.jpg", condition: "fused" },
+  { imageId: "img01_fused", src: "./assets/Picture1.jpg", condition: "fused" },
+  { imageId: "img09_fused", src: "./assets/Picture9.jpg", condition: "fused" },
   // ...
 ];
 
