@@ -2,6 +2,24 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/fireba
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCJMsriYRyR6Wl6ky3T2AbUJVK2Z3x54ss",
+  authDomain: "rgbt-fusion-human-study.firebaseapp.com",
+  projectId: "rgbt-fusion-human-study",
+  storageBucket: "rgbt-fusion-human-study.firebasestorage.app",
+  messagingSenderId: "101524489707",
+  appId: "1:101524489707:web:e4b4c43200733cee2485ae"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
 // 1) Paste your config from Firebase console here
 const firebaseConfig = {
   apiKey: "...",
