@@ -109,13 +109,31 @@ img.addEventListener("click", async (evt) => {
   showNextTrial();
 });
 
+// startBtn.addEventListener("click", async () => {
+//   startBtn.disabled = true;
+//   statusEl.textContent = "Signing in...";
+//   await ensureAnonAuth();            // Anonymous auth is the key for rules-based writes :contentReference[oaicite:6]{index=6}
+//   statusEl.textContent = "Loading...";
+//   showNextTrial();
+// });
+
 startBtn.addEventListener("click", async () => {
   startBtn.disabled = true;
   statusEl.textContent = "Signing in...";
-  await ensureAnonAuth();            // Anonymous auth is the key for rules-based writes :contentReference[oaicite:6]{index=6}
-  statusEl.textContent = "Loading...";
-  showNextTrial();
+
+  try {
+    const cred = await signInAnonymously(auth);
+    userUid = cred.user.uid;
+
+    statusEl.textContent = "Loading...";
+    showNextTrial();
+  } catch (e) {
+    console.error(e);
+    statusEl.textContent = `Sign-in failed: ${e.code || e.message}`;
+    startBtn.disabled = false;
+  }
 });
+
 
 img.addEventListener("click", (evt) => {
   if (tStart === null) return;
