@@ -13,14 +13,37 @@
 </head>
 <body>
   <h2>Pedestrian localisation task</h2>
+  <div id="instructions" class="hidden"></div>
+  <p id="status"></p>
+  
   <p id="status">Press start. Then click the pedestrian location as fast as possible.</p>
   <button id="startBtn">Start</button>
   <button id="nextBtn" disabled class="hidden">Next</button>
-
+  
   <div id="stimulusWrap" class="hidden">
     <img id="stimulus" alt="stimulus" />
   </div>
 
-  <script type="module" src="./app.js?v=1"></script>
+  <style>
+  /* Constant-size container for all images */
+  #stimulusWrap{
+    width: 960px;
+    height: 540px;        /* 16:9; change if you prefer */
+    border: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  #stimulus{
+    max-width: 100%;
+    max-height: 100%;
+    cursor: crosshair;
+    user-select: none;
+  }
+  .hidden{ display:none; }
+</style>
+
+  <script type="module" src="./app.js?v=2026-01-20-5"></script>
 </body>
 </html>
