@@ -2,6 +2,11 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/fireba
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 
+import { signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+
+import { collection, addDoc, serverTimestamp } 
+  from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCJMsriYRyR6Wl6ky3T2AbUJVK2Z3x54ss",
@@ -19,7 +24,7 @@ const db = getFirestore(app);
 console.log("Firebase initialized:", app.options.projectId);
 
 //Enable anonymous Sign-In
-import { signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+
 const statusEl = document.getElementById("status");
 const startBtn = document.getElementById("startBtn");
 
@@ -100,8 +105,8 @@ img.addEventListener("click", (evt) => {
   const { xNorm, yNorm } = clickToNormXY(evt);
 
   console.log({ rtMs, xNorm, yNorm });
-  // statusEl.textContent = `Recorded: RT=${rtMs} ms, x=${xNorm.toFixed(3)}, y=${yNorm.toFixed(3)}`;
-  statusEl.textContent = `Saving... RT=${rtMs} ms`;
+  statusEl.textContent = `Recorded: RT=${rtMs} ms, x=${xNorm.toFixed(3)}, y=${yNorm.toFixed(3)}`;
+  // statusEl.textContent = `Saving... RT=${rtMs} ms`;
 
   // Stop timing after first click (prevents re-clicks changing RT)
   tStart = null;
@@ -118,8 +123,7 @@ img.addEventListener("click", (evt) => {
 // ---------------------- TESTED OK UNTIL HERE -------------------------------- //
 // // Block 4: Write one response to Firestore
 
-// import { collection, addDoc, serverTimestamp } 
-//   from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
 
 // const studyId = "thesis_ped_localization_v1";
 // const participantId = crypto.randomUUID();  // local anonymous ID
