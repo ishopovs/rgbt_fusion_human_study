@@ -32,6 +32,10 @@ const statusEl = document.getElementById("status");
 const wrap = document.getElementById("stimulusWrap");
 const img = document.getElementById("stimulus");
 
+const nextBtn = document.getElementById("nextBtn");
+let pendingResponse = null;
+
+
 async function ensureAnonAuth() {
   const cred = await signInAnonymously(auth);
   userUid = cred.user.uid;
@@ -39,21 +43,27 @@ async function ensureAnonAuth() {
 
 function showNextTrial() {
   trialIndex += 1;
+  pendingResponse = null;
+  nextBtn.disabled = true;
+
   if (trialIndex >= trials.length) {
     statusEl.textContent = "Done. Thank you.";
     wrap.classList.add("hidden");
+    nextBtn.classList.add("hidden");
     return;
   }
+
   const tr = trials[trialIndex];
   img.src = tr.src;
 
-  // Start timing when the image has actually loaded
   img.onload = () => {
     wrap.classList.remove("hidden");
-    statusEl.textContent = `Trial ${trialIndex + 1}/${trials.length}: click the pedestrian location.`;
+    nextBtn.classList.remove("hidden");
+    statusEl.textContent = `Trial ${trialIndex + 1}/${trials.length}: click the pedestrian location, then press Next.`;
     tStart = performance.now();
   };
 }
+
 
 function clickToNormXY(evt) {
   const rect = img.getBoundingClientRect();
@@ -93,4 +103,40 @@ startBtn.addEventListener("click", async () => {
   statusEl.textContent = "Loading...";
   showNextTrial();
 });
+
+img.addEventListener("click", (evt) => {
+  if (tStart === null) return;
+
+  const rtMs = Math.round(performance.now() - tStart);
+  const { xNorm, yNorm } = clickToNormXY(evt);
+  const tr = trials[trialIndex];
+
+  pendingResponse = { rtMs, xNorm, yNorm, condition: tr.condition, imageId: tr.imageId };
+  nextBtn.disabled = false;
+
+  // prevent re-click changing RT; allow if you prefer
+  tStart = null;
+
+  statusEl.textContent = `Recorded. Press Next.`;
+});
+
+nextBtn.addEventListener("click", async () => {
+  if (!pendingResponse) return;
+  nextBtn.disabled = true;
+
+  await addDoc(collection(db, "responses"), {
+    studyId,
+    participantId,
+    trialIndex,
+    condition: pendingResponse.condition,
+    imageId: pendingResponse.imageId,
+    rtMs: pendingResponse.rtMs,
+    xNorm: pendingResponse.xNorm,
+    yNorm: pendingResponse.yNorm,
+    ts: serverTimestamp(),
+  });
+
+  showNextTrial();
+});
+
 
