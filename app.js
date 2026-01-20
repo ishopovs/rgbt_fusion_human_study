@@ -105,21 +105,21 @@ img.addEventListener("click", (evt) => {
   const { xNorm, yNorm } = clickToNormXY(evt);
 
   console.log({ rtMs, xNorm, yNorm });
-  // statusEl.textContent = `Recorded: RT=${rtMs} ms, x=${xNorm.toFixed(3)}, y=${yNorm.toFixed(3)}`;
-  statusEl.textContent = `Saving... RT=${rtMs} ms`;
+  statusEl.textContent = `Recorded: RT=${rtMs} ms, x=${xNorm.toFixed(3)}, y=${yNorm.toFixed(3)}`;
+  // statusEl.textContent = `Saving... RT=${rtMs} ms`;
 
   // Stop timing after first click (prevents re-clicks changing RT)
   tStart = null;
 
-//   // try {
-//   //   await saveResponse({ rtMs, xNorm, yNorm });
-//   //   statusEl.textContent = "Saved. Thank you.";
-//   // } catch (e) {
-//   //   console.error("Firestore write failed:", e);
-//   //   statusEl.textContent = "Error saving response (check console).";
-//   // }
+  try {
+    await saveResponse({ rtMs, xNorm, yNorm });
+    statusEl.textContent = "Saved. Thank you.";
+  } catch (e) {
+    console.error("Firestore write failed:", e);
+    statusEl.textContent = "Error saving response (check console).";
+  }
   
-// });
+});
 // ---------------------- TESTED OK UNTIL HERE -------------------------------- //
 // // Block 4: Write one response to Firestore
 
