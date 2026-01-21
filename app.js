@@ -204,7 +204,7 @@ async function showNextTrial() {
   trialActive = true;
 
   statusEl.textContent =
-    `Trial ${trialPos + 1}/${trials.length}: click VRUs (count=${clicks.length}). Press Space to submit.`;
+    `Trial ${trialPos + 1}/${trials.length}. Press Space to submit.`;
 
   console.log("Trial shown:", tr.imageId);
 }
