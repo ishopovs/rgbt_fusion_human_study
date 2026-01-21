@@ -48,6 +48,7 @@ let trialActive = false;
 
 // Preload cache: src -> HTMLImageElement
 const preloadCache = new Map();
+showInstructions();
 
 // -------------------------
 // Helpers: device + viewport logging
@@ -271,8 +272,7 @@ startBtn.addEventListener("click", async () => {
 
     // optional: shuffle
     shuffleInPlace(trials);
-
-    showInstructions();
+    
     statusEl.textContent = "Starting...";
     await showNextTrial();
   } catch (e) {
