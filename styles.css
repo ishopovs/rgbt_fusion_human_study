@@ -1,7 +1,7 @@
 :root{
   --bg: #0b0d10;
-  --card: #131720;
-  --card2: #0f131b;
+  --card: rgba(255,255,255,0.05);
+  --card2: rgba(0,0,0,0.20);
   --text: #e8edf5;
   --muted: #a9b3c1;
   --border: rgba(255,255,255,0.12);
@@ -12,17 +12,16 @@
 
 *{ box-sizing: border-box; }
 
-html, body{
-  height: 100%;
-}
+html, body{ height: 100%; }
 
 body{
   margin: 0;
-  font-size: 17px;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  background: radial-gradient(1200px 600px at 20% 0%, rgba(60,80,255,0.15), transparent 60%),
-              radial-gradient(1000px 500px at 100% 20%, rgba(0,200,255,0.12), transparent 60%),
-              var(--bg);
+  font-size: 17px; /* slightly larger overall */
+  background:
+    radial-gradient(1200px 600px at 20% 0%, rgba(60,80,255,0.15), transparent 60%),
+    radial-gradient(1000px 500px at 100% 20%, rgba(0,200,255,0.12), transparent 60%),
+    var(--bg);
   color: var(--text);
 }
 
@@ -42,7 +41,7 @@ body{
   justify-content: space-between;
   gap: var(--gap);
   padding: 14px 16px;
-  background: rgba(255,255,255,0.05);
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -58,17 +57,9 @@ body{
 .subtitle{
   margin: 6px 0 0 0;
   color: var(--muted);
-  /* font-size: 13px; */
   font-size: 14px;
   line-height: 1.35;
-}
-
-.startInfo{
-  margin: 6px 0 0 0;
-  color: var(--muted);
-  /* font-size: 13px; */
-  font-size: 14px;
-  line-height: 1.35;
+  max-width: 720px;
 }
 
 .pill{
@@ -78,9 +69,8 @@ body{
   border: 1px solid var(--border);
   background: rgba(255,255,255,0.06);
   color: var(--text);
-  /* font-size: 12px; */
   font-size: 13px;
-  max-width: 420px;
+  max-width: 460px;
 }
 
 .layout{
@@ -92,7 +82,7 @@ body{
 }
 
 .panel{
-  background: rgba(255,255,255,0.05);
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -103,54 +93,10 @@ body{
   min-height: 0;
 }
 
-.controls{
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.btn{
-  appearance: none;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,0.06);
-  color: var(--text);
-  padding: 10px 12px;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.05s ease, background 0.15s ease;
-}
-
-.btn:hover{
-  background: rgba(255,255,255,0.10);
-}
-
-.btn:active{
-  transform: translateY(1px);
-}
-
-.btn:disabled{
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-primary{
-  background: rgba(60,80,255,0.25);
-  border-color: rgba(60,80,255,0.35);
-}
-
-.btn-primary:hover{
-  background: rgba(60,80,255,0.32);
-}
-
-.btn-secondary{
-  background: rgba(255,255,255,0.06);
-}
-
 .instructions{
   border: 1px solid var(--border);
   border-radius: 12px;
-  background: rgba(0,0,0,0.20);
+  background: var(--card2);
   padding: 10px 10px;
 }
 
@@ -158,12 +104,26 @@ body{
   cursor: pointer;
   font-weight: 650;
   color: var(--text);
+  list-style: none;
+}
+
+.instructions summary::-webkit-details-marker{
+  display: none;
+}
+
+.instructions summary::after{
+  content: "▾";
+  float: right;
+  color: var(--muted);
+}
+
+.instructions[open] summary::after{
+  content: "▴";
 }
 
 .instructions-body{
   margin-top: 8px;
   color: var(--muted);
-  /* font-size: 13px; */
   font-size: 14px;
   line-height: 1.35;
 }
@@ -175,7 +135,6 @@ body{
 
 .note{
   margin: 10px 0 0 0;
-  /* font-size: 12px; */
   font-size: 13px;
   color: var(--muted);
 }
@@ -185,12 +144,16 @@ body{
   border-top: 1px solid var(--border);
   padding-top: 10px;
   color: var(--muted);
-  /* font-size: 12px; */
   font-size: 13px;
 }
 
+.progress-label{
+  color: var(--muted);
+}
+
+/* Right side */
 .stimulus-card{
-  background: rgba(255,255,255,0.05);
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -201,9 +164,10 @@ body{
   min-height: 0;
 }
 
+/* Fixed visual area, but responsive to screen height */
 .stimulus{
   width: 100%;
-  height: min(72vh, 720px);
+  height: min(72vh, 740px);
   border: 1px solid var(--border);
   border-radius: 12px;
   background: rgba(0,0,0,0.35);
@@ -223,13 +187,12 @@ body{
 
 .hint{
   color: var(--muted);
-  /* font-size: 12px; */
   font-size: 13px;
 }
 
 kbd{
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  font-size: 11px;
+  font-size: 12px;
   padding: 2px 6px;
   border-radius: 6px;
   border: 1px solid var(--border);
@@ -239,10 +202,9 @@ kbd{
 
 .hidden{ display: none !important; }
 
-/* Responsive: stack on small screens */
+/* Responsive: stack on smaller screens */
 @media (max-width: 900px){
   .layout{ grid-template-columns: 1fr; }
   .pill{ max-width: none; }
   .stimulus{ height: 52vh; }
 }
-
