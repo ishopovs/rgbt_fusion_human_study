@@ -36,6 +36,7 @@ const wrap = document.getElementById("stimulusWrap");
 const studyId = "thesis_ped_localization_v1";
 const participantId = crypto.randomUUID();
 let userUid = null;
+let experimentStarted = false;
 
 // -------------------------
 // Trials + state
@@ -267,29 +268,49 @@ async function submitCurrentTrial() {
   await addDoc(collection(db, "responses"), payload);
 }
 
+async function startExperiment() {
+  if (experimentStarted) return;
+  experimentStarted = true;
+
+  startBtn.disabled = true;
+  startBtn.classList.add("hidden");
+
+  await signInAnon();
+  trials = await loadTrials();
+  shuffleInPlace(trials);
+
+  statusEl.textContent = "Starting...";
+  await showNextTrial();
+}
+
+
 // -------------------------
 // Events
 // -------------------------
 startBtn.addEventListener("click", async () => {
-  startBtn.disabled = true;
   try {
-    await signInAnon();
-    trials = await loadTrials();
-
-    // optional: shuffle
-    shuffleInPlace(trials);
-    startBtn.disabled = true;
-    
-    statusEl.textContent = "Starting...";
-    await showNextTrial();
+    await startExperiment();
   } catch (e) {
     console.error(e);
     statusEl.textContent = `Start failed: ${e.code || e.message}`;
+    experimentStarted = false;
     startBtn.disabled = false;
+    startBtn.classList.remove("hidden");
   }
-  // } finally {
-  //   // startBtn.disabled = false;
-  // }
+});
+
+document.addEventListener("keydown", async (e) => {
+  if (e.code !== "Enter") return;
+  if (experimentStarted) return;
+
+  e.preventDefault();
+  try {
+    await startExperiment();
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = `Start failed: ${err.code || err.message}`;
+    experimentStarted = false;
+  }
 });
 
 // record click(s)
