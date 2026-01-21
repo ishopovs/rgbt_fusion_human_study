@@ -50,7 +50,7 @@ let trialActive = false;
 const preloadCache = new Map();
 
 statusEl.textContent = "Press Start. Then click the pedestrian location as fast as possible. Press Space to submit and go to the next image";
-showInstructions();
+// showInstructions();
 
 
 // -------------------------
@@ -178,16 +178,16 @@ async function signInAnon() {
 // -------------------------
 // Instructions (minimal fields)
 // -------------------------
-function showInstructions() {
-  // instructionsEl.classList.remove("hidden");
-  instructionsEl.innerHTML = `
-    <b>Instructions</b><br/>
-    - You will see a sequence of images in different driving conditions.<br/>
-    - Click on <b>each pedestrian</b> you can see (multiple clicks allowed).<br/>
-    - When done with the image, press <b>Space</b> (or click Next) to continue.<br/>
-    - Try to respond as quickly and accurately as possible.<br/>
-  `;
-}
+// function showInstructions() {
+//   instructionsEl.classList.remove("hidden");
+//   // instructionsEl.innerHTML = `
+//   //   <b>Instructions</b><br/>
+//   //   - You will see a sequence of images in different driving conditions.<br/>
+//   //   - Click on <b>each pedestrian</b> you can see (multiple clicks allowed).<br/>
+//   //   - When done with the image, press <b>Space</b> (or click Next) to continue.<br/>
+//   //   - Try to respond as quickly and accurately as possible.<br/>
+//   // `;
+// }
 
 // -------------------------
 // Trial presentation
@@ -200,7 +200,7 @@ async function showNextTrial() {
   nextBtn.disabled = true;
 
   if (trialPos >= trials.length) {
-    statusEl.textContent = "Done. Thank you.";
+    statusEl.textContent = "Done. Thank you!";
     wrap.classList.add("hidden");
     nextBtn.classList.add("hidden");
     startBtn.disabled = true;
