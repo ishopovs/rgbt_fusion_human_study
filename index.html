@@ -4,16 +4,15 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Pedestrian localisation study</title>
-  <style>
+  <!-- <style>
     body { font-family: system-ui, sans-serif; margin: 24px; }
     #stimulusWrap { width: min(640px, 95vw); }
     #stimulus { width: 100%; height: auto; display: block; cursor: crosshair; }
     .hidden { display: none; }
-  </style>
+  </style> -->
 </head>
 <body>
   <h2>Pedestrian localisation task</h2>
-  <p id="info">Read the instructions, then press Start.</p>
   <div id="instructions">
     <b>Instructions</b><br/>
     The goal of the trial is to evaluate the speed with which a person can detect a VRU (pedestrian, cyclist...) in the output of different fusion methods.<br/>
@@ -25,20 +24,17 @@
     - When done with the image, press <b>Space</b> (or click Next) to continue.<br/>
     - Try to respond as quickly and accurately as possible.<br/>
   </div>
-  <!-- <p id="status"></p>Read the instructions, then press Start. -->
   <p id="status"></p>
   <button id="startBtn">Start</button>
   <button id="nextBtn" disabled class="hidden" disabled>Next</button>
   
   <div id="stimulusWrap" class="hidden">
-    <img id="stimulus" alt="stimulus"  class="hidden" />
+    <img id="stimulus" class="hidden" />
   </div>
 
   <style>
   /* Constant-size container for all images */
   #stimulusWrap{
-    /* width: 960px;
-    height: 540px;        /* 16:9; change if you prefer */ */
     width: 640px;
     height: 480px;        /* 16:9; change if you prefer */
     border: 1px solid #ccc;
