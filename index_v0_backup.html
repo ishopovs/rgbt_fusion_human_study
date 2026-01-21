@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pedestrian localisation study</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 24px; }
+    /* #stimulusWrap { width: min(640px, 95vw); }
+    #stimulus { width: 100%; height: auto; display: block; cursor: crosshair; }
+    .hidden { display: none; } */
+  </style>
+</head>
+<body>
+  <h2>Pedestrian localisation task</h2>
+  <div id="instructions">
+    <b>Instructions</b><br/>
+    The goal of the trial is to evaluate the speed with which a person can detect a VRU (pedestrian, cyclist...) in the output of different fusion methods.<br/>
+    Some images will be pure RGB images, no fusion. <br/>
+    Please take time to complete this session without distractions, because your response time is measured and used for evaluation.<br/>
+    How it works:<br/>
+    - You will see a sequence of images in different driving conditions.<br/>
+    - Click on <b>each pedestrian</b> you can see (multiple clicks allowed).<br/>
+    - When done with the image, press <b>Space</b> (or click Next) to continue.<br/>
+    - Try to respond as quickly and accurately as possible.<br/>
+  </div>
+  <p id="status"></p>
+  <button id="startBtn">Start</button>
+  <button id="nextBtn" disabled class="hidden" disabled>Next</button>
+  
+  <div id="stimulusWrap" class="hidden">
+    <img id="stimulus"/>
+  </div>
+
+  <style>
+  /* Constant-size container for all images */
+  #stimulusWrap{
+    width: 640px;
+    height: 480px;        /* 16:9; change if you prefer */
+    border: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  #stimulus{
+    max-width: 100%;
+    max-height: 100%;
+    width: 100%;
+    height: auto;
+    cursor: crosshair;
+    user-select: none;
+  }
+  .hidden{ display:none; }
+</style>
+
+  <script type="module" src="./app.js?v=2026-01-20-5"></script>
+</body>
+</html>
