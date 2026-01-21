@@ -24,7 +24,7 @@ console.log("Firebase initialized:", app.options.projectId);
 // DOM
 // -------------------------
 const statusEl = document.getElementById("status");
-const progressLabel = document.getElementById("progressLabel");
+// const progressLabel = document.getElementById("progressLabel");
 const img = document.getElementById("stimulus");
 const wrap = document.getElementById("stimulusWrap");
 
@@ -180,7 +180,7 @@ async function showNextTrial() {
   trialActive = false;
 
   if (trialPos >= trials.length) {
-    progressLabel.textContent = `Completed ${trials.length} / ${trials.length}`;
+    // progressLabel.textContent = `Completed ${trials.length} / ${trials.length}`;
     statusEl.textContent = "Done. Thank you.";
     wrap.classList.add("hidden");
     return;
@@ -188,7 +188,7 @@ async function showNextTrial() {
 
   const tr = trials[trialPos];
 
-  progressLabel.textContent = `Trial ${trialPos + 1} / ${trials.length}`;
+  // progressLabel.textContent = `Trial ${trialPos + 1} / ${trials.length}`;
   statusEl.textContent = `Loading trial ${trialPos + 1}/${trials.length}...`;
   wrap.classList.remove("hidden");
 
@@ -260,7 +260,7 @@ async function startExperiment() {
     trials = await loadTrials();
     shuffleInPlace(trials);
 
-    progressLabel.textContent = `Trial 1 / ${trials.length}`;
+    // progressLabel.textContent = `Trial 1 / ${trials.length}`;
     statusEl.textContent = "Starting...";
     await showNextTrial();
   } catch (e) {
