@@ -80,6 +80,15 @@ body{
   max-height: 64px;
 }
 
+.meta{
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 8px;
+}
+.meta span{
+  color: var(--text);
+  font-weight: 650;
+}
 
 .layout{
   display: grid;
