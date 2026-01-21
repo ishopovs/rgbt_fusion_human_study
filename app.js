@@ -202,6 +202,7 @@ async function showNextTrial() {
   if (trialPos >= trials.length) {
     statusEl.textContent = "Done. Thank you!";
     wrap.classList.add("hidden");
+    img.classList.add("hidden");
     nextBtn.classList.add("hidden");
     startBtn.disabled = true;
     startBtn.classList.add("hidden");
