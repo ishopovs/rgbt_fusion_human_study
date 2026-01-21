@@ -203,6 +203,8 @@ async function showNextTrial() {
     statusEl.textContent = "Done. Thank you.";
     wrap.classList.add("hidden");
     nextBtn.classList.add("hidden");
+    startBtn.disabled = true;
+    startBtn.classList.add("hidden");
     return;
   }
 
@@ -282,9 +284,11 @@ startBtn.addEventListener("click", async () => {
   } catch (e) {
     console.error(e);
     statusEl.textContent = `Start failed: ${e.code || e.message}`;
-  } finally {
     startBtn.disabled = false;
   }
+  // } finally {
+  //   // startBtn.disabled = false;
+  // }
 });
 
 // record click(s)
