@@ -17,16 +17,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
 console.log("Firebase initialized:", app.options.projectId);
 
 // -------------------------
 // DOM
 // -------------------------
 const statusEl = document.getElementById("status");
-const instructionsEl = document.getElementById("instructions");
-const startBtn = document.getElementById("startBtn");
-const nextBtn = document.getElementById("nextBtn");
-
+const progressLabel = document.getElementById("progressLabel");
 const img = document.getElementById("stimulus");
 const wrap = document.getElementById("stimulusWrap");
 
@@ -36,23 +34,22 @@ const wrap = document.getElementById("stimulusWrap");
 const studyId = "thesis_ped_localization_v1";
 const participantId = crypto.randomUUID();
 let userUid = null;
-let experimentStarted = false;
 
 // -------------------------
 // Trials + state
 // -------------------------
 let trials = [];
 let trialPos = -1;
-let tStart = null;           // trial timer start (after image shown)
-let clicks = [];             // multiple pedestrians: store multiple clicks
+
+let tStart = null;          // set when image is visible
+let clicks = [];            // multiple pedestrians per image
 let trialActive = false;
+
+let experimentStarted = false;
+let inFlight = false;       // prevents double-submission if Space is pressed rapidly
 
 // Preload cache: src -> HTMLImageElement
 const preloadCache = new Map();
-
-statusEl.textContent = "Press Start. Then click the pedestrian location as fast as possible. Press Space to submit and go to the next image";
-// showInstructions();
-
 
 // -------------------------
 // Helpers: device + viewport logging
@@ -106,7 +103,6 @@ function shuffleInPlace(arr) {
 // -------------------------
 function preloadImage(src) {
   if (preloadCache.has(src)) return preloadCache.get(src);
-
   const im = new Image();
   im.src = src;
   preloadCache.set(src, im);
@@ -115,12 +111,13 @@ function preloadImage(src) {
 
 async function ensurePreloaded(src) {
   const im = preloadImage(src);
-  // wait until loaded (or error)
   if (im.complete && im.naturalWidth > 0) return im;
+
   await new Promise((resolve, reject) => {
     im.onload = () => resolve();
     im.onerror = () => reject(new Error(`Preload failed: ${src}`));
   });
+
   return im;
 }
 
@@ -128,22 +125,19 @@ async function ensurePreloaded(src) {
 // Mapping click to normalised coords accounting for letterboxing
 // -------------------------
 function getDisplayedImageRect() {
-  // wrapper size
   const wrapRect = wrap.getBoundingClientRect();
   const W = wrapRect.width;
   const H = wrapRect.height;
 
-  // intrinsic image size
   const nW = img.naturalWidth;
   const nH = img.naturalHeight;
   if (!nW || !nH) return null;
 
-  // "contain" fit into wrapper
+  // object-fit: contain
   const scale = Math.min(W / nW, H / nH);
   const dispW = nW * scale;
   const dispH = nH * scale;
 
-  // centered inside wrapper
   const left = wrapRect.left + (W - dispW) / 2;
   const top  = wrapRect.top  + (H - dispH) / 2;
 
@@ -157,13 +151,10 @@ function clickToNormXY(evt) {
   const x = evt.clientX - r.left;
   const y = evt.clientY - r.top;
 
-  // ignore clicks outside the displayed image area (letterbox region)
+  // Ignore clicks in letterbox region
   if (x < 0 || y < 0 || x > r.dispW || y > r.dispH) return null;
 
-  return {
-    xNorm: x / r.dispW,
-    yNorm: y / r.dispH
-  };
+  return { xNorm: x / r.dispW, yNorm: y / r.dispH };
 }
 
 // -------------------------
@@ -177,20 +168,6 @@ async function signInAnon() {
 }
 
 // -------------------------
-// Instructions (minimal fields)
-// -------------------------
-// function showInstructions() {
-//   instructionsEl.classList.remove("hidden");
-//   // instructionsEl.innerHTML = `
-//   //   <b>Instructions</b><br/>
-//   //   - You will see a sequence of images in different driving conditions.<br/>
-//   //   - Click on <b>each pedestrian</b> you can see (multiple clicks allowed).<br/>
-//   //   - When done with the image, press <b>Space</b> (or click Next) to continue.<br/>
-//   //   - Try to respond as quickly and accurately as possible.<br/>
-//   // `;
-// }
-
-// -------------------------
 // Trial presentation
 // -------------------------
 async function showNextTrial() {
@@ -198,52 +175,51 @@ async function showNextTrial() {
   clicks = [];
   tStart = null;
   trialActive = false;
-  nextBtn.disabled = true;
 
   if (trialPos >= trials.length) {
-    statusEl.textContent = "Done. Thank you!";
+    progressLabel.textContent = `Completed ${trials.length} / ${trials.length}`;
+    statusEl.textContent = "Done. Thank you.";
     wrap.classList.add("hidden");
-    img.classList.add("hidden");
-    nextBtn.classList.add("hidden");
-    startBtn.disabled = true;
-    startBtn.classList.add("hidden");
     return;
   }
 
   const tr = trials[trialPos];
+
+  progressLabel.textContent = `Trial ${trialPos + 1} / ${trials.length}`;
   statusEl.textContent = `Loading trial ${trialPos + 1}/${trials.length}...`;
   wrap.classList.remove("hidden");
-  nextBtn.classList.remove("hidden");
 
-  // Preload current and (optionally) next
+  // Preload current and next
   await ensurePreloaded(tr.src);
   if (trialPos + 1 < trials.length) preloadImage(trials[trialPos + 1].src);
 
   // Display
   img.src = tr.src;
 
-  // Wait until the displayed <img> has decoded
-  await img.decode().catch(() => { /* decode not supported everywhere; onload will still work */ });
+  // Wait for decode (best-effort)
+  await img.decode().catch(() => {});
 
-  // Start timing only now (image is ready to be seen)
+  // Start timing after image is ready
   tStart = performance.now();
   trialActive = true;
-  nextBtn.disabled = false;
 
-  statusEl.textContent = `Trial ${trialPos + 1}/${trials.length}: click pedestrians (count=${clicks.length}). Press Space/Next to submit.`;
+  statusEl.textContent =
+    `Trial ${trialPos + 1}/${trials.length}: click VRUs (count=${clicks.length}). Press Space to submit.`;
+
+  console.log("Trial shown:", tr.imageId);
 }
 
 // -------------------------
 // Save to Firestore (one doc per trial, with multiple clicks)
 // -------------------------
 async function submitCurrentTrial() {
-  if (!trialActive) return; // nothing to submit
+  if (!trialActive) return;
+  if (!userUid) throw new Error("Not signed in yet (userUid is null).");
 
   const tr = trials[trialPos];
   const device = getDeviceInfo();
   const vp = getViewportInfo();
 
-  // allow submission even with 0 clicks (useful for "no pedestrian" images)
   const payload = {
     studyId,
     participantId,
@@ -254,111 +230,91 @@ async function submitCurrentTrial() {
     condition: tr.condition,
     imageId: tr.imageId,
 
-    // multiple pedestrians per image
     clicks,              // array of {xNorm, yNorm, rtMs}
     nClicks: clicks.length,
 
-    // context logging
     ...device,
     ...vp,
 
     ts: serverTimestamp(),
   };
 
+  console.log("Submitting payload keys:", Object.keys(payload).sort());
   await addDoc(collection(db, "responses"), payload);
 }
 
+// -------------------------
+// Start experiment (Space)
+// -------------------------
 async function startExperiment() {
   if (experimentStarted) return;
+
   experimentStarted = true;
+  inFlight = true;
 
-  startBtn.disabled = true;
-  startBtn.classList.add("hidden");
+  try {
+    await signInAnon();
+    trials = await loadTrials();
+    shuffleInPlace(trials);
 
-  await signInAnon();
-  trials = await loadTrials();
-  shuffleInPlace(trials);
-
-  statusEl.textContent = "Starting...";
-  await showNextTrial();
+    progressLabel.textContent = `Trial 1 / ${trials.length}`;
+    statusEl.textContent = "Starting...";
+    await showNextTrial();
+  } catch (e) {
+    console.error(e);
+    experimentStarted = false;
+    statusEl.textContent = `Start failed: ${e.code || e.message}`;
+  } finally {
+    inFlight = false;
+  }
 }
-
 
 // -------------------------
 // Events
 // -------------------------
-startBtn.addEventListener("click", async () => {
-  try {
-    await startExperiment();
-  } catch (e) {
-    console.error(e);
-    statusEl.textContent = `Start failed: ${e.code || e.message}`;
-    experimentStarted = false;
-    startBtn.disabled = false;
-    startBtn.classList.remove("hidden");
-  }
-});
 
-document.addEventListener("keydown", async (e) => {
-  if (e.code !== "Enter") return;
-  if (experimentStarted) return;
-
-  e.preventDefault();
-  try {
-    await startExperiment();
-  } catch (err) {
-    console.error(err);
-    statusEl.textContent = `Start failed: ${err.code || err.message}`;
-    experimentStarted = false;
-  }
-});
-
-// record click(s)
+// Record click(s) (multiple pedestrians per image)
 img.addEventListener("click", (evt) => {
   if (!trialActive || tStart === null) return;
 
   const xy = clickToNormXY(evt);
-  if (!xy) return; // click in letterbox area
+  if (!xy) return;
 
   const rtMs = Math.round(performance.now() - tStart);
-  // Reset timer to count response time for multiple objects
-  tStart = performance.now();
+
+  // Keep onset-based RT (recommended). If you later want inter-click intervals, store a second field.
   clicks.push({ xNorm: xy.xNorm, yNorm: xy.yNorm, rtMs });
 
-  statusEl.textContent = `Recorded ${clicks.length} click(s). Press Space/Next to submit.`;
+  statusEl.textContent =
+    `Recorded ${clicks.length} click(s). Press Space to submit.`;
 });
 
-// submit on Next
-nextBtn.addEventListener("click", async () => {
-  if (!trialActive) return;
-  nextBtn.disabled = true;
-  statusEl.textContent = "Saving...";
-  try {
-    await submitCurrentTrial();
-    statusEl.textContent = "Saved.";
-    await showNextTrial();
-  } catch (e) {
-    console.error(e);
-    statusEl.textContent = `Save failed: ${e.code || e.message}`;
-    nextBtn.disabled = false;
-  }
-});
-
-// submit on Space
+// Space: start if not started; otherwise submit+advance
 document.addEventListener("keydown", async (e) => {
   if (e.code !== "Space") return;
-  if (!trialActive) return;
+  e.preventDefault();
 
-  e.preventDefault(); // prevents page scrolling
-  nextBtn.disabled = true;
-  statusEl.textContent = "Saving...";
+  if (inFlight) return; // prevents rapid repeats
+  inFlight = true;
+
   try {
+    if (!experimentStarted) {
+      statusEl.textContent = "Starting...";
+      await startExperiment();
+      return;
+    }
+
+    if (!trialActive) return;
+
+    statusEl.textContent = "Saving...";
     await submitCurrentTrial();
+
     statusEl.textContent = "Saved.";
     await showNextTrial();
   } catch (err) {
     console.error(err);
     statusEl.textContent = `Save failed: ${err.code || err.message}`;
-    nextBtn.disabled = false;
+  } finally {
+    inFlight = false;
   }
 });
