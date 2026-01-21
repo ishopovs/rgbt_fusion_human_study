@@ -49,6 +49,7 @@ let trialActive = false;
 // Preload cache: src -> HTMLImageElement
 const preloadCache = new Map();
 showInstructions();
+statusEl.textContent = "Read the instructions, then press Start.";
 
 // -------------------------
 // Helpers: device + viewport logging
@@ -176,7 +177,7 @@ async function signInAnon() {
 // Instructions (minimal fields)
 // -------------------------
 function showInstructions() {
-  instructionsEl.classList.remove("hidden");
+  // instructionsEl.classList.remove("hidden");
   instructionsEl.innerHTML = `
     <b>Instructions</b><br/>
     - You will see a sequence of nighttime images.<br/>
@@ -272,6 +273,7 @@ startBtn.addEventListener("click", async () => {
 
     // optional: shuffle
     shuffleInPlace(trials);
+    startBtn.disabled = true;
     
     statusEl.textContent = "Starting...";
     await showNextTrial();
