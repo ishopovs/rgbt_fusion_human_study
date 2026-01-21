@@ -90,6 +90,12 @@ body{
   font-weight: 650;
 }
 
+.contact{
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 8px;
+}
+
 .layout{
   display: grid;
   grid-template-columns: 360px 1fr;
