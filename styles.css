@@ -163,7 +163,7 @@ body{
   color: var(--muted);
 }
 
-.progress{
+/* .progress{
   margin-top: auto;
   border-top: 1px solid var(--border);
   padding-top: 10px;
@@ -173,7 +173,7 @@ body{
 
 .progress-label{
   color: var(--muted);
-}
+} */
 
 /* Right side */
 .stimulus-card{
