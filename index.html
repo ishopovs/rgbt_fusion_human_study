@@ -13,12 +13,12 @@
 </head>
 <body>
   <h2>Pedestrian localisation task</h2>
-  <div id="instructions" class="hidden"></div>
+  <div id="instructions"></div>
   <p id="status"></p>
   
   <p id="status">Press start. Then click the pedestrian location as fast as possible.</p>
   <button id="startBtn">Start</button>
-  <button id="nextBtn" disabled class="hidden">Next</button>
+  <button id="nextBtn" disabled class="hidden" disabled>Next</button>
   
   <div id="stimulusWrap" class="hidden">
     <img id="stimulus" alt="stimulus" />
@@ -27,8 +27,10 @@
   <style>
   /* Constant-size container for all images */
   #stimulusWrap{
-    width: 960px;
-    height: 540px;        /* 16:9; change if you prefer */
+    /* width: 960px;
+    height: 540px;        /* 16:9; change if you prefer */ */
+    width: 640px;
+    height: 480px;        /* 16:9; change if you prefer */
     border: 1px solid #ccc;
     display: flex;
     align-items: center;
