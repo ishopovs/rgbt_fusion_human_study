@@ -48,8 +48,10 @@ let trialActive = false;
 
 // Preload cache: src -> HTMLImageElement
 const preloadCache = new Map();
-showInstructions();
+
 statusEl.textContent = "Read the instructions, then press Start.";
+showInstructions();
+
 
 // -------------------------
 // Helpers: device + viewport logging
@@ -180,7 +182,7 @@ function showInstructions() {
   // instructionsEl.classList.remove("hidden");
   instructionsEl.innerHTML = `
     <b>Instructions</b><br/>
-    - You will see a sequence of nighttime images.<br/>
+    - You will see a sequence of images in different driving conditions.<br/>
     - Click on <b>each pedestrian</b> you can see (multiple clicks allowed).<br/>
     - When done with the image, press <b>Space</b> (or click Next) to continue.<br/>
     - Try to respond as quickly and accurately as possible.<br/>
@@ -293,6 +295,8 @@ img.addEventListener("click", (evt) => {
   if (!xy) return; // click in letterbox area
 
   const rtMs = Math.round(performance.now() - tStart);
+  // Reset timer to count response time for multiple objects
+  tStart = performance.now();
   clicks.push({ xNorm: xy.xNorm, yNorm: xy.yNorm, rtMs });
 
   statusEl.textContent = `Recorded ${clicks.length} click(s). Press Space/Next to submit.`;
