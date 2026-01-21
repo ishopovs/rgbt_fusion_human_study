@@ -1,58 +1,66 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Pedestrian localisation study</title>
-  <!-- <style>
-    body { font-family: system-ui, sans-serif; margin: 24px; }
-    #stimulusWrap { width: min(640px, 95vw); }
-    #stimulus { width: 100%; height: auto; display: block; cursor: crosshair; }
-    .hidden { display: none; }
-  </style> -->
+  <link rel="stylesheet" href="./styles.css?v=1" />
 </head>
-<body>
-  <h2>Pedestrian localisation task</h2>
-  <div id="instructions">
-    <b>Instructions</b><br/>
-    The goal of the trial is to evaluate the speed with which a person can detect a VRU (pedestrian, cyclist...) in the output of different fusion methods.<br/>
-    Some images will be pure RGB images, no fusion. <br/>
-    Please take time to complete this session without distractions, because your response time is measured and used for evaluation.<br/>
-    How it works:<br/>
-    - You will see a sequence of images in different driving conditions.<br/>
-    - Click on <b>each pedestrian</b> you can see (multiple clicks allowed).<br/>
-    - When done with the image, press <b>Space</b> (or click Next) to continue.<br/>
-    - Try to respond as quickly and accurately as possible.<br/>
-  </div>
-  <p id="status"></p>
-  <button id="startBtn">Start</button>
-  <button id="nextBtn" disabled class="hidden" disabled>Next</button>
-  
-  <div id="stimulusWrap" class="hidden">
-    <img id="stimulus"/>
-  </div>
 
-  <style>
-  /* Constant-size container for all images */
-  #stimulusWrap{
-    width: 640px;
-    height: 480px;        /* 16:9; change if you prefer */
-    border: 1px solid #ccc;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-  }
-  #stimulus{
-    max-width: 100%;
-    max-height: 100%;
-    width: 100%;
-    height: auto;
-    cursor: crosshair;
-    user-select: none;
-  }
-  .hidden{ display:none; }
-</style>
+<body>
+  <main class="page">
+    <header class="header">
+      <div>
+        <h1 class="title">Pedestrian localisation task</h1>
+        <p class="subtitle">Click each visible VRU (pedestrian/cyclist). Press Space (or Next) to submit and continue.</p>
+      </div>
+      <div class="pill" id="status">Read the instructions, then press Start.</div>
+    </header>
+
+    <section class="layout">
+      <!-- LEFT: controls + instructions -->
+      <aside class="panel">
+        <div class="controls">
+          <button id="startBtn" class="btn btn-primary">Start</button>
+          <button id="nextBtn" class="btn btn-secondary hidden" disabled>Next</button>
+        </div>
+
+        <details class="instructions" open>
+          <summary>Instructions</summary>
+          <div class="instructions-body">
+            <p>
+              The goal of this task is to evaluate how quickly a person can detect a vulnerable road user (VRU)
+              in the output of different imaging methods (RGB and fusion outputs).
+            </p>
+            <ul>
+              <li>Complete the session without distractions (reaction time is measured).</li>
+              <li>You will see a sequence of images in different driving conditions.</li>
+              <li><b>Click each pedestrian/cyclist</b> you can see (multiple clicks allowed).</li>
+              <li>When done, press <b>Space</b> (or click <b>Next</b>) to continue.</li>
+              <li>Try to respond as quickly and accurately as possible.</li>
+            </ul>
+            <p class="note">
+              Tip: keep the browser window maximised. Use a mouse/trackpad (touch devices are not recommended).
+            </p>
+          </div>
+        </details>
+
+        <div class="progress">
+          <div class="progress-label" id="progressLabel">Not started</div>
+        </div>
+      </aside>
+
+      <!-- RIGHT: stimulus -->
+      <section class="stimulus-card">
+        <div id="stimulusWrap" class="stimulus hidden" aria-label="Stimulus">
+          <img id="stimulus" alt="Stimulus image" />
+        </div>
+        <div class="hint">
+          Click on the image. Press <kbd>Space</kbd> to submit.
+        </div>
+      </section>
+    </section>
+  </main>
 
   <script type="module" src="./app.js?v=2026-01-20-5"></script>
 </body>
