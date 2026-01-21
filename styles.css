@@ -12,7 +12,7 @@
 
 *{ box-sizing: border-box; }
 
-html, body{ height: 100%; }
+html, body{ height: 100%; overflow: hidden; /* prevent page-level scrolling */}
 
 body{
   margin: 0;
@@ -29,10 +29,14 @@ body{
   max-width: 1200px;
   margin: 0 auto;
   padding: 18px;
-  min-height: 100%;
+  /* min-height: 100%; */
   display: flex;
   flex-direction: column;
   gap: var(--gap);
+
+  height: 100vh;           /* lock to viewport height */
+  max-height: 100vh;
+  overflow: hidden;        /* prevent accidental overflow */
 }
 
 .header{
@@ -80,7 +84,7 @@ body{
   grid-template-columns: 360px 1fr;
   gap: var(--gap);
   flex: 1;
-  min-height: 0;
+  min-height: 0; /* critical: allows children to shrink */
 }
 
 .panel{
@@ -93,6 +97,7 @@ body{
   flex-direction: column;
   gap: 12px;
   min-height: 0;
+  overflow: auto;          /* only this panel can scroll */
 }
 
 .instructions{
@@ -164,12 +169,14 @@ body{
   flex-direction: column;
   gap: 10px;
   min-height: 0;
+  overflow: hidden;
 }
+
 
 /* Fixed visual area, but responsive to screen height */
 .stimulus{
   width: 100%;
-  height: min(72vh, 740px);
+  /* height: min(72vh, 740px); */
   border: 1px solid var(--border);
   border-radius: 12px;
   background: rgba(0,0,0,0.35);
@@ -177,6 +184,10 @@ body{
   align-items: center;
   justify-content: center;
   overflow: hidden;
+
+  height: 100%;            /* fill available height inside stimulus-card */
+  min-height: 320px;       /* safety */
+  flex: 1;
 }
 
 #stimulus{
