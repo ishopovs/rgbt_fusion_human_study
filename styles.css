@@ -71,7 +71,9 @@ body{
   color: var(--text);
   font-size: 13px;
   max-width: 460px;
+  min-height: 48px;
 }
+
 
 .layout{
   display: grid;
