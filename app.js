@@ -49,7 +49,7 @@ let trialActive = false;
 // Preload cache: src -> HTMLImageElement
 const preloadCache = new Map();
 
-statusEl.textContent = "Read the instructions, then press Start.";
+statusEl.textContent = "Press Start. Then click the pedestrian location as fast as possible. Press Space to submit and go to the next image";
 showInstructions();
 
 
