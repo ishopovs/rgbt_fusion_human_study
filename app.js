@@ -33,6 +33,9 @@ const wrap = document.getElementById("stimulusWrap");
 // -------------------------
 const studyId = "thesis_ped_localization_v1";
 const participantId = crypto.randomUUID();
+const participantCodeEl = document.getElementById("participantCode");
+const participantCode = "P-" + participantId.replaceAll("-", "").slice(0, 6).toUpperCase();
+participantCodeEl.textContent = participantCode;
 let userUid = null;
 
 // -------------------------
