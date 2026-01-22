@@ -279,6 +279,7 @@ async function showNextTrial() {
     // progressLabel.textContent = `Completed ${trials.length} / ${trials.length}`;
     statusEl.textContent = "Done. Thank you.";
     wrap.classList.add("hidden");
+    sessionStorage.removeItem(SS_KEY_PID); // allow a new participant immediately
     return;
   }
 
