@@ -51,9 +51,6 @@ const trialType = getParticipantType();
 console.log("Assigned trialType:", trialType);
 // -------------------------
 
-// (Optional) keep firebaseUid too, but participantId is enough for assignment.
-const studyId = "thesis_ped_localization_v1";
-
 // -------------------------
 // Fixed scene order (your chosen order)
 // -------------------------
