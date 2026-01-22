@@ -29,15 +29,25 @@ const img = document.getElementById("stimulus");
 const wrap = document.getElementById("stimulusWrap");
 
 
+// // -------------------------
+// // Participant ID: persist across refresh (important!)
+// // -------------------------
+// const LS_KEY_PID = "pedstudy_participantId_v1";
+// let participantId = localStorage.getItem(LS_KEY_PID);
+// if (!participantId) {
+//   participantId = crypto.randomUUID();
+//   localStorage.setItem(LS_KEY_PID, participantId);
+// }
 // -------------------------
-// Participant ID: persist across refresh (important!)
+// Participant ID (per browser tab/session)
 // -------------------------
-const LS_KEY_PID = "pedstudy_participantId_v1";
-let participantId = localStorage.getItem(LS_KEY_PID);
+const SS_KEY_PID = "pedstudy_participantId_v1";
+let participantId = sessionStorage.getItem(SS_KEY_PID);
 if (!participantId) {
   participantId = crypto.randomUUID();
-  localStorage.setItem(LS_KEY_PID, participantId);
+  sessionStorage.setItem(SS_KEY_PID, participantId);
 }
+// -------------------------
 // Compute participant trial type once (0,1,2)
 const trialType = getParticipantType();
 console.log("Assigned trialType:", trialType);
