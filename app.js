@@ -28,15 +28,7 @@ const statusEl = document.getElementById("status");
 const img = document.getElementById("stimulus");
 const wrap = document.getElementById("stimulusWrap");
 
-// -------------------------
-// Study IDs
-// -------------------------
-const studyId = "thesis_ped_localization_v1";
-// const participantId = crypto.randomUUID();
-const participantCodeEl = document.getElementById("participantCode");
-const participantCode = "P-" + participantId.replaceAll("-", "").slice(0, 6).toUpperCase();
-participantCodeEl.textContent = participantCode;
-let userUid = null;
+
 // -------------------------
 // Participant ID: persist across refresh (important!)
 // -------------------------
@@ -50,9 +42,16 @@ if (!participantId) {
 const trialType = getParticipantType();
 console.log("Assigned trialType:", trialType);
 // -------------------------
-
+// Study IDs
 // -------------------------
-// Fixed scene order (your chosen order)
+const studyId = "thesis_ped_localization_v1";
+// const participantId = crypto.randomUUID();
+const participantCodeEl = document.getElementById("participantCode");
+const participantCode = "P-" + participantId.replaceAll("-", "").slice(0, 6).toUpperCase();
+participantCodeEl.textContent = participantCode;
+let userUid = null;
+// -------------------------
+// Fixed scene order
 // -------------------------
 const SCENE_ORDER = [
   "G01S03","G02S12","G03S24","G02S11","G03S18","G01S04","G01S08","G02S16",
