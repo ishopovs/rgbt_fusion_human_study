@@ -32,15 +32,11 @@ const wrap = document.getElementById("stimulusWrap");
 // Study IDs
 // -------------------------
 const studyId = "thesis_ped_localization_v1";
-const participantId = crypto.randomUUID();
+// const participantId = crypto.randomUUID();
 const participantCodeEl = document.getElementById("participantCode");
 const participantCode = "P-" + participantId.replaceAll("-", "").slice(0, 6).toUpperCase();
 participantCodeEl.textContent = participantCode;
 let userUid = null;
-// Compute participant trial type once (0,1,2)
-const trialType = getParticipantType();
-console.log("Assigned trialType:", trialType);
-// -------------------------
 // -------------------------
 // Participant ID: persist across refresh (important!)
 // -------------------------
@@ -50,6 +46,10 @@ if (!participantId) {
   participantId = crypto.randomUUID();
   localStorage.setItem(LS_KEY_PID, participantId);
 }
+// Compute participant trial type once (0,1,2)
+const trialType = getParticipantType();
+console.log("Assigned trialType:", trialType);
+// -------------------------
 
 // (Optional) keep firebaseUid too, but participantId is enough for assignment.
 const studyId = "thesis_ped_localization_v1";
