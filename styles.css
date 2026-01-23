@@ -338,6 +338,7 @@ kbd{
   align-items: flex-start;
   width: 100%;
   margin-top: 16px;
+  width: 90%;
 }
 
 /* Center the stimulus card and control its width */
