@@ -48,8 +48,11 @@
         <h1 class="title">Person localisation task</h1>
         <!-- <p class="subtitle">
           When ready, move your cursor over the image area and press <b>Space</b> to start.
-          Click pedestrians/cyclists. Press <b>Space</b> again to submit and continue.
+          Click pedestrians/cyclists. Press <b>Space</b> to submit and continue.
         </p> -->
+        <div class="meta">
+          Participant code: <span id="participantCode"></span>
+        </div>
       </div>
       <div class="pill" id="status">Read the instructions, then press Space to start.</div>
     </header>
@@ -57,9 +60,9 @@
     <section class="layout">
       <!-- LEFT: instructions -->
       <aside class="panel">
-        <div class="meta">
+        <!-- <div class="meta">
           Participant code: <span id="participantCode"></span>
-        </div>
+        </div> -->
         <!-- <details class="instructions" open>
           <summary>Instructions</summary>
           <div class="instructions-body">
@@ -90,11 +93,11 @@
 
       <!-- RIGHT: stimulus -->
       <section class="stimulus-card">
-        <div id="stimulusWrap" class="stimulus hidden" aria-label="Stimulus">
-          <img id="stimulus" alt="Stimulus image" />
-        </div>
         <div class="hint">
           Click pedestrians/cyclists, then press <kbd>Space</kbd> to submit.
+        </div>
+        <div id="stimulusWrap" class="stimulus hidden" aria-label="Stimulus">
+          <img id="stimulus" alt="Stimulus image" />
         </div>
       </section>
     </section>
