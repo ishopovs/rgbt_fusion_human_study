@@ -256,7 +256,7 @@ kbd{
   background: #111;
   color: #f2f2f2;
 
-  width: min(600px, 92vw);
+  width: min(650px, 92vw);
   /* width: min(520px, 92vw); */
   padding: 28px 32px;
   border-radius: 14px;
