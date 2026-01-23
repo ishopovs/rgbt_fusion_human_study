@@ -12,12 +12,15 @@
 
 *{ box-sizing: border-box; }
 
-html, body{ height: 100%; overflow: hidden; /* prevent page-level scrolling */}
+html, body{
+  height: 100%;
+  margin: 0;
+  overflow: hidden; /* prevent page-level scrolling */
+}
 
 body{
-  margin: 0;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  font-size: 17px; /* slightly larger overall */
+  font-size: 17px;
   background:
     radial-gradient(1200px 600px at 20% 0%, rgba(60,80,255,0.15), transparent 60%),
     radial-gradient(1000px 500px at 100% 20%, rgba(0,200,255,0.12), transparent 60%),
@@ -25,18 +28,22 @@ body{
   color: var(--text);
 }
 
+/* =========================================================
+   Page layout: header + centered content, no overflow
+========================================================= */
 .page{
   max-width: 1200px;
   margin: 0 auto;
   padding: 18px;
-  /* min-height: 100%; */
+
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+
   display: flex;
   flex-direction: column;
   gap: var(--gap);
-
-  height: 100vh;           /* lock to viewport height */
-  max-height: 100vh;
-  overflow: hidden;        /* prevent accidental overflow */
+  min-height: 0;
 }
 
 .header{
@@ -44,11 +51,15 @@ body{
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--gap);
+
   padding: 14px 16px;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
+
+  max-width: min(980px, 96vw);
+  margin: 0 auto;
 }
 
 .title{
@@ -66,20 +77,6 @@ body{
   max-width: 720px;
 }
 
-.pill{
-  align-self: center;
-  align-items: center;      /* vertical centering */
-  padding: 8px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,0.06);
-  color: var(--text);
-  font-size: 13px;
-  max-width: 460px;
-  min-height: 48px;
-  max-height: 64px;
-}
-
 .meta{
   color: var(--muted);
   font-size: 13px;
@@ -90,110 +87,90 @@ body{
   font-weight: 650;
 }
 
-.contact{
-  color: var(--muted);
-  font-size: 13px;
-  margin-top: 8px;
-  flex: 0 0 auto;
-  text-align: center;
-}
-
-.layout{
-  display: grid;
-  grid-template-columns: 360px 1fr;
-  gap: var(--gap);
-  flex: 1;
-  min-height: 0; /* critical: allows children to shrink */
-}
-
-.panel{
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 14px;
+/* Status pill (keep compact; center text properly) */
+.pill{
+  align-self: center;
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  min-height: 0;
-  overflow: auto;          /* only this panel can scroll */
-}
+  align-items: center;       /* vertical centering */
+  justify-content: center;
 
-.instructions{
+  padding: 8px 10px;
+  border-radius: 999px;
   border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--card2);
-  padding: 10px 10px;
-}
-
-.instructions summary{
-  cursor: pointer;
-  font-weight: 650;
+  background: rgba(255,255,255,0.06);
   color: var(--text);
-  list-style: none;
-}
-
-.instructions summary::-webkit-details-marker{
-  display: none;
-}
-
-.instructions summary::after{
-  content: "▾";
-  float: right;
-  color: var(--muted);
-}
-
-.instructions[open] summary::after{
-  content: "▴";
-}
-
-.instructions-body{
-  margin-top: 8px;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.35;
-}
-
-.instructions-body ul{
-  margin: 8px 0 0 18px;
-  padding: 0;
-}
-
-.note{
-  margin: 10px 0 0 0;
   font-size: 13px;
-  color: var(--muted);
+
+  max-width: 460px;
+  min-height: 40px;
+  max-height: 56px;
 }
 
-/* .progress{
-  margin-top: auto;
-  border-top: 1px solid var(--border);
-  padding-top: 10px;
-  color: var(--muted);
-  font-size: 13px;
+/* =========================================================
+   Single-column centered layout (no side panel)
+   Key fix: the whole content area fits within remaining height,
+   and the stimulus area shrinks to leave room for contact text.
+========================================================= */
+.layout.single{
+  flex: 1;                   /* take remaining height below header */
+  min-height: 0;             /* critical: allow children to shrink */
+  width: 100%;
+
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+
+  max-width: min(980px, 96vw);
+  margin: 0 auto;
 }
 
-.progress-label{
-  color: var(--muted);
-} */
+/* Hide side panel if it exists */
+.panel{ display: none !important; }
 
-/* Right side */
+/* Main card: fixed within layout.single height */
 .stimulus-card{
+  width: 100%;
+
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 14px;
+
   display: flex;
   flex-direction: column;
   gap: 10px;
-  min-height: 0;
-  overflow: hidden;
+
+  min-height: 0;             /* critical */
+  max-height: 100%;          /* do not exceed layout.single height */
+  overflow: hidden;          /* prevent internal overflow affecting page */
 }
 
+/* Hint and contact should not grow; keep them compact */
+.hint{
+  font-size: 13px;
+  line-height: 1.35;
+  opacity: 0.85;
+  text-align: center;
+  flex: 0 0 auto;
+  margin: 0;
+}
 
-/* Fixed visual area, but responsive to screen height */
+.contact{
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: center;
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+/* The stimulus region takes remaining space ONLY (so contact stays visible) */
 .stimulus{
+  flex: 1 1 auto;            /* grow + shrink */
+  min-height: 0;             /* critical: allow shrink so contact remains visible */
+  overflow: hidden;
+
   width: 100%;
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -202,14 +179,11 @@ body{
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-
-  flex: 1 1 auto;      /* can grow and can shrink */
-  min-height: 220px;       /* critical: allows space for contact below */
-  max-height: 70vh;    /* cap so contact stays visible */
 }
 
-.stimulus img {
+/* Image scales to fit inside the stimulus box */
+.stimulus img,
+#stimulus{
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -217,20 +191,7 @@ body{
   cursor: crosshair;
 }
 
-#stimulus{
-  width: 100%;
-  height: 90%;
-  object-fit: contain;
-  cursor: crosshair;
-  user-select: none;
-}
-
-/* .hint{
-  color: var(--muted);
-  font-size: 13px;
-   
-} */
-
+/* Keyboard key styling */
 kbd{
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   font-size: 12px;
@@ -239,37 +200,38 @@ kbd{
   border: 1px solid var(--border);
   background: rgba(255,255,255,0.06);
   color: var(--text);
-  flex: 0 0 auto; 
 }
 
 .hidden{ display: none !important; }
 
-/* Responsive: stack on smaller screens */
+/* =========================================================
+   Responsive tweaks
+========================================================= */
 @media (max-width: 900px){
-  .layout{ grid-template-columns: 1fr; }
+  .page{ padding: 14px; }
+  .header{ max-width: 96vw; }
+  .layout.single{ max-width: 96vw; }
   .pill{ max-width: none; }
-  .stimulus{ height: 52vh; }
 }
 
-/* new */
-/* ===== Instruction Overlay ===== */
-.overlay {
+/* =========================================================
+   Instruction Overlay
+========================================================= */
+.overlay{
   position: fixed;
   inset: 0;
   z-index: 1000;
   background: rgba(0, 0, 0, 0.65);
-
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.overlay-card {
+.overlay-card{
   background: #111;
   color: #f2f2f2;
 
   width: min(700px, 92vw);
-  /* width: min(520px, 92vw); */
   padding: 28px 32px;
   border-radius: 14px;
 
@@ -277,36 +239,35 @@ kbd{
   text-align: left;
 }
 
-.overlay-card h2 {
-  margin-top: 0;
-  margin-bottom: 14px;
+.overlay-card h2{
+  margin: 0 0 14px 0;
   font-size: 22px;
   font-weight: 600;
 }
 
-.overlay-card p {
+.overlay-card p{
   margin: 10px 0;
   font-size: 15px;
   line-height: 1.45;
 }
 
-.overlay-card ul {
+.overlay-card ul{
   margin: 6px 0 12px 18px;
   padding: 0;
 }
 
-.overlay-card li {
+.overlay-card li{
   margin: 6px 0;
   font-size: 15px;
 }
 
-.overlay-card .note {
+.overlay-card .note{
   font-size: 14px;
   opacity: 0.85;
   margin-top: 10px;
 }
 
-.primary-btn {
+.primary-btn{
   display: block;
   width: 100%;
   margin-top: 18px;
@@ -322,43 +283,6 @@ kbd{
   cursor: pointer;
 }
 
-.primary-btn:hover {
+.primary-btn:hover{
   background: #2563eb;
 }
-
-.hint {
-  margin-top: 10px;
-  font-size: 13px;
-  opacity: 0.75;
-  text-align: center;
-  flex: 0 0 auto;
-}
-
-/* ===== Single-column centered layout (no side panel) ===== */
-.layout.single {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  width: 100%;
-  margin-top: 16px;
-  height: 90%
-}
-
-/* Center the stimulus card and control its width */
-.layout.single .stimulus-card {
-  width: min(980px, 96vw);
-  margin: 0 auto;
-}
-
-/* Optional: make the header content align nicely and not stretch weirdly */
-.header {
-  max-width: min(980px, 96vw);
-  margin: 0 auto;
-}
-
-/* If any leftover panel exists, ensure it never occupies space */
-.panel {
-  display: none !important;
-}
-
-
