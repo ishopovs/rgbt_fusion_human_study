@@ -95,6 +95,7 @@ body{
   font-size: 13px;
   margin-top: 8px;
   flex: 0 0 auto;
+  text-align: center;
 }
 
 .layout{
@@ -194,26 +195,23 @@ body{
 /* Fixed visual area, but responsive to screen height */
 .stimulus{
   width: 100%;
-  /* height: min(72vh, 740px); */
   border: 1px solid var(--border);
   border-radius: 12px;
   background: rgba(0,0,0,0.35);
+
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
 
-  /* height: 100%;            /* fill available height inside stimulus-card */ */
-  height: 90%;            /* fill available height inside stimulus-card */
-  min-height: 320px;       /* safety */
-  flex: 1;
-  height: min(70vh, 620px);
-  max-height: 70vh;
+  flex: 1 1 auto;      /* can grow and can shrink */
+  min-height: 220px;       /* critical: allows space for contact below */
+  max-height: 70vh;    /* cap so contact stays visible */
 }
 
 .stimulus img {
   width: 100%;
-  height: 90%;
+  height: 100%;
   object-fit: contain;
   user-select: none;
   cursor: crosshair;
@@ -227,11 +225,11 @@ body{
   user-select: none;
 }
 
-.hint{
+/* .hint{
   color: var(--muted);
   font-size: 13px;
-  flex: 0 0 auto; 
-}
+   
+} */
 
 kbd{
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
@@ -333,6 +331,7 @@ kbd{
   font-size: 13px;
   opacity: 0.75;
   text-align: center;
+  flex: 0 0 auto;
 }
 
 /* ===== Single-column centered layout (no side panel) ===== */
