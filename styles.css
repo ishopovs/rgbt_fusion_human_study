@@ -321,3 +321,30 @@ kbd{
   text-align: center;
 }
 
+/* ===== Single-column centered layout (no side panel) ===== */
+.layout.single {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  margin-top: 16px;
+}
+
+/* Center the stimulus card and control its width */
+.layout.single .stimulus-card {
+  width: min(980px, 96vw);
+  margin: 0 auto;
+}
+
+/* Optional: make the header content align nicely and not stretch weirdly */
+.header {
+  max-width: min(980px, 96vw);
+  margin: 0 auto;
+}
+
+/* If any leftover panel exists, ensure it never occupies space */
+.panel {
+  display: none !important;
+}
+
+
