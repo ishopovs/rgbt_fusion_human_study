@@ -57,50 +57,23 @@
       <div class="pill" id="status">Read the instructions, then press Space to start.</div>
     </header>
 
-    <section class="layout">
-      <!-- LEFT: instructions -->
-      <!-- <aside class="panel"> -->
-        <!-- <div class="meta">
-          Participant code: <span id="participantCode"></span>
-        </div> -->
-        <!-- <details class="instructions" open>
-          <summary>Instructions</summary>
-          <div class="instructions-body">
-            <p>
-              The goal of this task is to evaluate how quickly a person can detect a vulnerable road user (VRU)
-              in the output of different imaging methods (RGB and thermal fusion outputs).
-            </p>
-            <ul>
-              <li>Complete the session without distractions (reaction time is measured).</li>
-              <li>You will see a sequence of driving images recorded in low light conditions.</li>
-              <li><b>Click each pedestrian/cyclist</b> you can see (multiple clicks allowed).</li>
-              <li>When done, press <b>Space</b> to submit and continue.</li>
-              <li>Try to respond as quickly and accurately as possible.</li>
-            </ul>
-            <p class="note">
-              Tip: keep the browser window maximised. Use a mouse/trackpad (touch devices are not recommended).
-            </p>
-          </div>
-        </details> -->
-        <!-- <div class="progress">
-          <div class="progress-label" id="progressLabel">Not started</div>
-        </div> -->
-      <!-- </aside> -->
-
-      <!-- RIGHT: stimulus -->
+    <section class="layout single">
       <section class="stimulus-card">
         <div class="hint">
           Click pedestrians/cyclists, then press <kbd>Space</kbd> to submit.
         </div>
+  
         <div id="stimulusWrap" class="stimulus hidden" aria-label="Stimulus">
           <img id="stimulus" alt="Stimulus image" />
         </div>
+    
         <div class="contact">
           For comments or entry withdrawal requests, please contact ivana.sopovska@gmail.com and include your participant code.
         </div>
       </section>
     </section>
-  </main>
+  
+    </main>
 
   <script type="module" src="./app.js?v=2026-01-21-1"></script>
 </body>
