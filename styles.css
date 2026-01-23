@@ -202,7 +202,8 @@ body{
   justify-content: center;
   overflow: hidden;
 
-  height: 100%;            /* fill available height inside stimulus-card */
+  /* height: 100%;            /* fill available height inside stimulus-card */ */
+  height: 90%;            /* fill available height inside stimulus-card */
   min-height: 320px;       /* safety */
   flex: 1;
   height: min(70vh, 620px);
