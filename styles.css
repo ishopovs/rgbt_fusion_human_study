@@ -148,7 +148,7 @@ body{
 
 /* Hint and contact should not grow; keep them compact */
 .hint{
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.35;
   opacity: 0.85;
   text-align: center;
@@ -163,7 +163,6 @@ body{
   text-align: center;
   flex: 0 0 auto;
   margin: 0;
-  align-items: center;
 }
 
 /* The stimulus region takes remaining space ONLY (so contact stays visible) */
