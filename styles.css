@@ -238,3 +238,85 @@ kbd{
   .pill{ max-width: none; }
   .stimulus{ height: 52vh; }
 }
+
+/* new */
+/* ===== Instruction Overlay ===== */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.65);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay-card {
+  background: #111;
+  color: #f2f2f2;
+
+  width: min(520px, 92vw);
+  padding: 28px 32px;
+  border-radius: 14px;
+
+  box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+  text-align: left;
+}
+
+.overlay-card h2 {
+  margin-top: 0;
+  margin-bottom: 14px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.overlay-card p {
+  margin: 10px 0;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.overlay-card ul {
+  margin: 6px 0 12px 18px;
+  padding: 0;
+}
+
+.overlay-card li {
+  margin: 6px 0;
+  font-size: 15px;
+}
+
+.overlay-card .note {
+  font-size: 14px;
+  opacity: 0.85;
+  margin-top: 10px;
+}
+
+.primary-btn {
+  display: block;
+  width: 100%;
+  margin-top: 18px;
+  padding: 12px 0;
+
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary-btn:hover {
+  background: #2563eb;
+}
+
+.hint {
+  margin-top: 10px;
+  font-size: 13px;
+  opacity: 0.75;
+  text-align: center;
+}
+
