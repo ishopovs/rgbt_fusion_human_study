@@ -248,7 +248,7 @@ async function showNextTrial() {
   trialActive = false;
 
   if (trialPos >= trials.length) {
-    statusEl.textContent = "Done. Thank you.";
+    statusEl.textContent = "Done. Thank you!";
     wrap.classList.add("hidden");
 
     // Allow a new participant immediately in the same tab after completion
@@ -275,7 +275,7 @@ async function showNextTrial() {
   tStart = performance.now();
   trialActive = true;
 
-  statusEl.textContent = `Trial ${trialPos + 1}/${trials.length}. Click pedestrians/cyclists. Press Space to submit.`;
+  statusEl.textContent = `Trial ${trialPos + 1}/${trials.length}.`;
   console.log("Trial shown:", tr.imageId);
 }
 
