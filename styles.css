@@ -94,6 +94,7 @@ body{
   color: var(--muted);
   font-size: 13px;
   margin-top: 8px;
+  flex: 0 0 auto;
 }
 
 .layout{
@@ -207,6 +208,7 @@ body{
   min-height: 320px;       /* safety */
   flex: 1;
   height: min(70vh, 620px);
+  max-height: 70vh;
 }
 
 .stimulus img {
