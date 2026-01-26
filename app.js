@@ -74,16 +74,27 @@ if (participantCodeEl) participantCodeEl.textContent = participantCode;
 let userUid = null;
 
 /* =========================================================
-   Fixed scene order (your chosen order)
+   Practice trials (fixed, shown first, can discard in analysis)
+   Conditions fixed: RGB -> methodA -> methodB
+   Scene IDs fixed:  T01S01, T02S02, T03S03
 ========================================================= */
-const SCENE_ORDER = [
+const PRACTICE_TRIALS = [
+  { sceneId: "T01S01", condition: "RGB" },
+  { sceneId: "T02S02", condition: "methodA" },
+  { sceneId: "T03S03", condition: "methodB" },
+];
+
+/* =========================================================
+   Main trials: fixed scene order (your chosen order)
+========================================================= */
+const MAIN_SCENE_ORDER = [
   "G01S03","G02S12","G03S24","G02S11","G03S18","G01S04","G01S08","G02S16",
   "G03S19","G01S01","G02S13","G03S22","G03S17","G01S06","G02S10","G01S05",
   "G03S23","G02S09","G03S21","G02S15","G01S02","G02S14","G03S20","G01S07"
 ];
 
 /* =========================================================
-   Map group + type -> folder
+   Map group + type -> folder for MAIN trials
    Rotation:
    Type 0: G01->RGB,     G02->methodA, G03->methodB
    Type 1: G01->methodA, G02->methodB, G03->RGB
@@ -107,25 +118,37 @@ function folderFor(groupStr, type) {
 }
 
 /* =========================================================
-   Build trials in fixed order (no shuffling)
+   Build trials: practice first (fixed), then main (type-rotated)
 ========================================================= */
 function buildTrialsFixedOrder() {
   const type = trialType;
   console.log("ParticipantId:", participantId, "Type:", type);
 
-  return SCENE_ORDER.map((sceneId, idx) => {
-    const groupStr = sceneId.slice(0, 3);
-    const folder = folderFor(groupStr, type);
+  const practice = PRACTICE_TRIALS.map((p, idx) => ({
+    trialPos: idx,                 // 0..2
+    sceneId: p.sceneId,            // e.g., "T01S01"
+    group: "T",                    // practice group tag
+    condition: p.condition,        // fixed: RGB/methodA/methodB
+    imageId: `${p.condition}_${p.sceneId}`,
+    src: `./trial/${p.condition}/${p.sceneId}.jpg`,
+    isPractice: true,
+  }));
 
+  const main = MAIN_SCENE_ORDER.map((sceneId, i) => {
+    const groupStr = sceneId.slice(0, 3);  // "G01"/"G02"/"G03"
+    const folder = folderFor(groupStr, type);
     return {
-      trialPos: idx,
+      trialPos: PRACTICE_TRIALS.length + i, // 3..26
       sceneId,
       group: groupStr,
-      condition: folder, // "RGB" | "methodA" | "methodB"
+      condition: folder,
       imageId: `${folder}_${sceneId}`,
       src: `./trial/${folder}/${sceneId}.jpg`,
+      isPractice: false,
     };
   });
+
+  return [...practice, ...main];
 }
 
 /* =========================================================
@@ -248,7 +271,7 @@ async function showNextTrial() {
   trialActive = false;
 
   if (trialPos >= trials.length) {
-    statusEl.textContent = "Done. Thank you!";
+    statusEl.textContent = "Done. Thank you.";
     wrap.classList.add("hidden");
 
     // Allow a new participant immediately in the same tab after completion
@@ -275,7 +298,10 @@ async function showNextTrial() {
   tStart = performance.now();
   trialActive = true;
 
-  statusEl.textContent = `Trial ${trialPos + 1}/${trials.length}.`;
+  const practiceTag = tr.isPractice ? " (practice)" : "";
+  statusEl.textContent =
+    `Trial ${trialPos + 1}/${trials.length}${practiceTag}. Click people, press Space to submit.`;
+
   console.log("Trial shown:", tr.imageId);
 }
 
@@ -295,14 +321,15 @@ async function submitCurrentTrial() {
     participantId,
     firebaseUid: userUid,
 
-    trialType,               // 0/1/2
+    trialType,          // 0/1/2
+    isPractice: tr.isPractice === true,
 
     trialPos,
     sceneId: tr.sceneId,
     condition: tr.condition,
     imageId: tr.imageId,
 
-    clicks,                  // array of {xNorm, yNorm, rtMs}
+    clicks,             // array of {xNorm, yNorm, rtMs}
     nClicks: clicks.length,
 
     ...device,
@@ -326,7 +353,7 @@ async function startExperiment() {
 
   try {
     await signInAnon();
-    trials = buildTrialsFixedOrder(); // fixed order
+    trials = buildTrialsFixedOrder(); // practice + main (fixed order)
 
     statusEl.textContent = "Starting...";
     await showNextTrial();
@@ -388,8 +415,8 @@ img.addEventListener("click", (evt) => {
 
   const rtMs = Math.round(performance.now() - tStart);
 
-  // Onset-based RT for each click (recommended).
-  // If you want inter-click RTs instead, reset tStart here.
+  // Onset-based RT for each click (recommended for now).
+  // If later you want inter-click intervals, reset tStart here and store two RT fields.
   clicks.push({ xNorm: xy.xNorm, yNorm: xy.yNorm, rtMs });
 
   statusEl.textContent = `Recorded ${clicks.length} click(s). Press Space to submit.`;
@@ -408,7 +435,7 @@ document.addEventListener("keydown", async (e) => {
 
   try {
     if (!experimentStarted) {
-      // If you removed the overlay but still want Space-to-start
+      // Fallback: allow Space-to-start if overlay removed for some reason
       await startExperiment();
       return;
     }
