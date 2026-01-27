@@ -158,6 +158,9 @@ let trials = [];
 let trialPos = -1;
 
 let tStart = null;          // set when image is visible
+let trialShownAt = null;   // when the current image becomes visible (ms)
+let dwellMs = null;        // total time spent on current image (ms)
+
 let clicks = [];            // multiple pedestrians per image
 let trialActive = false;
 
@@ -270,6 +273,9 @@ async function showNextTrial() {
   tStart = null;
   trialActive = false;
 
+  trialShownAt = null;
+  dwellMs = null;
+
   if (trialPos >= trials.length) {
     statusEl.textContent = "Done. Thank you.";
     wrap.classList.add("hidden");
@@ -295,9 +301,11 @@ async function showNextTrial() {
   await img.decode().catch(() => {});
 
   // Start timing after image is ready
-  tStart = performance.now();
+  // tStart = performance.now();
+  trialShownAt = performance.now();
+  tStart = trialShownAt;   // keep your click RT reference the same
   trialActive = true;
-
+   
   const practiceTag = tr.isPractice ? " (practice)" : "";
   statusEl.textContent =
     `Trial ${trialPos + 1}/${trials.length}${practiceTag}. Click people, press Space to submit.`;
@@ -316,6 +324,10 @@ async function submitCurrentTrial() {
   const device = getDeviceInfo();
   const vp = getViewportInfo();
 
+  // dwellMs = (trialShownAt == null) ? null : Math.round(performance.now() - trialShownAt);
+  dwellMs = (trialShownAt == null) ? 0 : Math.round(performance.now() - trialShownAt);
+
+
   const payload = {
     studyId,
     participantId,
@@ -331,6 +343,8 @@ async function submitCurrentTrial() {
 
     clicks,             // array of {xNorm, yNorm, rtMs}
     nClicks: clicks.length,
+
+    dwellMs,
 
     ...device,
     ...vp,
