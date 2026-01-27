@@ -324,7 +324,9 @@ async function submitCurrentTrial() {
   const device = getDeviceInfo();
   const vp = getViewportInfo();
 
-  dwellMs = (trialShownAt == null) ? null : Math.round(performance.now() - trialShownAt);
+  // dwellMs = (trialShownAt == null) ? null : Math.round(performance.now() - trialShownAt);
+  dwellMs = (trialShownAt == null) ? 0 : Math.round(performance.now() - trialShownAt);
+
 
   const payload = {
     studyId,
