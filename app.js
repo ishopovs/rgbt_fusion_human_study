@@ -276,6 +276,9 @@ async function showNextTrial() {
   trialShownAt = null;
   dwellMs = null;
 
+   document.querySelectorAll(".click-marker").forEach(el => el.remove());
+
+
   if (trialPos >= trials.length) {
     statusEl.textContent = "Done. Thank you.";
     wrap.classList.add("hidden");
@@ -432,6 +435,27 @@ img.addEventListener("click", (evt) => {
   // Onset-based RT for each click (recommended for now).
   // If later you want inter-click intervals, reset tStart here and store two RT fields.
   clicks.push({ xNorm: xy.xNorm, yNorm: xy.yNorm, rtMs });
+
+ // --- NEW --- //
+ // Create a red dot at the click location
+ const dot = document.createElement("div");
+ dot.style.position = "absolute";
+ dot.style.width = "10px";
+ dot.style.height = "10px";
+ dot.style.borderRadius = "50%";
+ dot.style.backgroundColor = "red";
+ dot.style.pointerEvents = "none"; // avoid blocking future clicks
+
+ // Calculate absolute pixel position using image display rect
+ const r = getDisplayedImageRect();
+ if (!r) return;
+
+ dot.style.left = `${r.left + xy.xNorm * r.dispW - 5}px`; // center the dot
+ dot.style.top = `${r.top + xy.yNorm * r.dispH - 5}px`;
+
+ dot.classList.add("click-marker");
+ document.body.appendChild(dot);
+ // ----------- //
 
   statusEl.textContent = `Recorded ${clicks.length} click(s). Press Space to submit.`;
 });
