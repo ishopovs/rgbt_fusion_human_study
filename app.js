@@ -440,8 +440,8 @@ img.addEventListener("click", (evt) => {
  // Create a red dot at the click location
  const dot = document.createElement("div");
  dot.style.position = "absolute";
- dot.style.width = "10px";
- dot.style.height = "10px";
+ dot.style.width = "5px";
+ dot.style.height = "5px";
  dot.style.borderRadius = "50%";
  dot.style.backgroundColor = "red";
  dot.style.pointerEvents = "none"; // avoid blocking future clicks
